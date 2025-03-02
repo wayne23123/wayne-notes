@@ -129,7 +129,7 @@ export default function Layout() {
 
           {/* 漢堡選單 (手機版) */}
           <button
-            className="lg:hidden px-2"
+            className="lg:hidden px-2 py-2"
             onClick={() => setMenuOpen(!menuOpen)}
           >
             ☰
@@ -346,6 +346,16 @@ function NotesSidebar({
     <>
       <h2 className="text-lg font-semibold mb-4">📂 筆記分類</h2>
       <nav className="space-y-2">
+        <AccordionItem
+          title="Git"
+          isOpen={openSection === 'git'}
+          onClick={() => toggleSection('git')}
+          links={[
+            { to: '/notes/git-basics', label: '常用 Git 指令' },
+            // { to: '/notes/git-commands', label: '常用 Git 指令' },
+          ]}
+          darkMode={darkMode}
+        />
         <AccordionItem
           title="JavaScript"
           isOpen={openSection === 'js'}
