@@ -387,14 +387,14 @@ function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
       <h2 className="text-lg font-semibold mb-4">🛠️ 開發工具</h2>
       <nav className="space-y-2">
         <Link
-          to="/tools/tool1"
+          to="/tools/base64-svg"
           className={`block p-2 text-sm rounded transition-all duration-300 ${
             darkMode
               ? 'hover:bg-gray-700 text-gray-200'
               : 'hover:bg-gray-200 text-gray-900'
           }`}
         >
-          工具1
+          base64-svg
         </Link>
         <Link
           to="/tools/tool2"

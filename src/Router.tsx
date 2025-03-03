@@ -3,8 +3,9 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import Blog from './pages/Blog';
 import Notes from './pages/Notes';
-import Tools from './pages/Tools';
 import GitBasics from './pages/notes/git/GitBasics';
+import Tools from './pages/Tools';
+import Base64ToSvg from './pages/tools/Base64ToSvg';
 
 const AppRoutes = () => {
   return (
@@ -16,6 +17,7 @@ const AppRoutes = () => {
           <Route path="notes" element={<Notes />}></Route>
           <Route path="notes/git-basics" element={<GitBasics />} />
           <Route path="tools" element={<Tools />} />
+          <Route path="tools/base64-svg" element={<Base64ToSvg />} />
         </Route>
       </Routes>
     </Router>
