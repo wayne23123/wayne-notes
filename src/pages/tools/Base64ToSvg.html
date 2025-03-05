@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Base64 轉 SVG（純 JavaScript + 可調整 Canny 閥值）</title>
+  </head>
+  <body>
+    <h2>輸入 Base64 圖片</h2>
+    <textarea
+      id="base64Input"
+      rows="5"
+      cols="80"
+      placeholder="貼上你的 Base64 圖片..."
+    ></textarea>
+    <br />
+    <button onclick="convertToSVG()">轉換為 SVG</button>
+
+    <h2>調整 Canny 閥值</h2>
+    <label>低閥值 (Threshold Low):</label>
+    <input
+      type="range"
+      id="thresholdLow"
+      min="0"
+      max="255"
+      value="50"
+      oninput="updateSVG()"
+    />
+    <span id="lowValue">50</span>
+
+    <br />
+
+    <label>高閥值 (Threshold High):</label>
+    <input
+      type="range"
+      id="thresholdHigh"
+      min="0"
+      max="255"
+      value="150"
+      oninput="updateSVG()"
+    />
+    <span id="highValue">150</span>
+
+    <h2>轉換後的 SVG</h2>
+    <div id="svgContainer"></div>
+    <pre
+      id="svgCode"
+      style="background-color: #f4f4f4; padding: 10px; border: 1px solid #ccc"
+    ></pre>
+    <button onclick="copySVGCode()">複製 SVG 代碼</button>
+
+    <canvas id="imageCanvas" style="display: none"></canvas>
+
+    <script>
+      let originalGrayData = null;
+      let canvasWidth = 0,
+        canvasHeight = 0;
+
+      function convertToSVG() {
+        let base64String = document.getElementById('base64Input').value;
+        if (!base64String.startsWith('data:image')) {
+          base64String = 'data:image/png;base64,' + base64String;
+        }
+
+        let img = new Image();
+        img.src = base64String;
+        img.onload = function () {
+          let canvas = document.getElementById('imageCanvas');
+          let ctx = canvas.getContext('2d');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          canvasWidth = img.width;
+          canvasHeight = img.height;
+          ctx.drawImage(img, 0, 0);
+
+          let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          originalGrayData = toGrayscale(imageData);
+
+          updateSVG(); // 根據當前的滑桿數值重新計算 SVG
+        };
+      }
+
+      function updateSVG() {
+        if (!originalGrayData) return;
+
+        let low = parseInt(document.getElementById('thresholdLow').value);
+        let high = parseInt(document.getElementById('thresholdHigh').value);
+
+        document.getElementById('lowValue').textContent = low;
+        document.getElementById('highValue').textContent = high;
+
+        let edgeData = applyCannyEdgeDetection(
+          originalGrayData,
+          canvasWidth,
+          canvasHeight,
+          low,
+          high
+        );
+        let svgString = edgeToSVG(edgeData, canvasWidth, canvasHeight);
+
+        document.getElementById('svgContainer').innerHTML = svgString;
+        document.getElementById('svgCode').textContent = svgString;
+      }
+
+      function toGrayscale(imageData) {
+        let pixels = imageData.data;
+        let grayData = new Uint8ClampedArray(
+          imageData.width * imageData.height
+        );
+        for (let i = 0; i < pixels.length; i += 4) {
+          let gray =
+            pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114;
+          grayData[i / 4] = gray;
+        }
+        return grayData;
+      }
+
+      function applyCannyEdgeDetection(
+        grayData,
+        width,
+        height,
+        thresholdLow,
+        thresholdHigh
+      ) {
+        let sobelX = [
+          [-1, 0, 1],
+          [-2, 0, 2],
+          [-1, 0, 1],
+        ];
+        let sobelY = [
+          [-1, -2, -1],
+          [0, 0, 0],
+          [1, 2, 1],
+        ];
+
+        let gradient = new Float32Array(width * height);
+        let edgeData = new Uint8ClampedArray(width * height);
+
+        for (let y = 1; y < height - 1; y++) {
+          for (let x = 1; x < width - 1; x++) {
+            let gx = 0,
+              gy = 0;
+            for (let i = -1; i <= 1; i++) {
+              for (let j = -1; j <= 1; j++) {
+                let pixel = grayData[(y + i) * width + (x + j)];
+                gx += pixel * sobelX[i + 1][j + 1];
+                gy += pixel * sobelY[i + 1][j + 1];
+              }
+            }
+            let magnitude = Math.sqrt(gx * gx + gy * gy);
+            gradient[y * width + x] = magnitude;
+          }
+        }
+
+        for (let i = 0; i < gradient.length; i++) {
+          edgeData[i] =
+            gradient[i] > thresholdHigh
+              ? 255
+              : gradient[i] > thresholdLow
+              ? 128
+              : 0;
+        }
+
+        return edgeData;
+      }
+
+      function edgeToSVG(edgeData, width, height) {
+        let svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">`;
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            if (edgeData[y * width + x] === 255) {
+              svgString += `<rect x="${x}" y="${y}" width="1" height="1" fill="black"/>`;
+            }
+          }
+        }
+        svgString += '</svg>';
+        return svgString;
+      }
+
+      function copySVGCode() {
+        let svgCode = document.getElementById('svgCode').textContent;
+        navigator.clipboard
+          .writeText(svgCode)
+          .then(() => {
+            alert('SVG 代碼已複製！');
+          })
+          .catch((err) => {
+            console.error('複製失敗', err);
+          });
+      }
+    </script>
+  </body>
+</html>
