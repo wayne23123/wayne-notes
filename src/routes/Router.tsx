@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
-import Home from './pages/Home';
-import Blog from './pages/Blog';
-import Notes from './pages/Notes';
-import GitBasics from './pages/notes/git/GitBasics';
-import Tools from './pages/Tools';
-import Base64ToSvg from './pages/tools/Base64ToSvg';
+import Layout from '../components/Layout';
+import Home from '../pages/Home';
+import Blog from '../pages/Blog';
+import Notes from '../pages/Notes';
+import GitBasics from '../pages/notes/git/GitBasics';
+import Tools from '../pages/Tools';
+import Base64ToSvg from '../pages/tools/Base64ToSvg';
 
 const AppRoutes = () => {
   return (

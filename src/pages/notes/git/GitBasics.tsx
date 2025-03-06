@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useDarkMode } from '../../../context/DarkModeContext';
 
 const GitBasics = () => {
+  const { darkMode } = useDarkMode();
   const [copiedCommandId, setCopiedCommandId] = useState<string | null>(null);
   // 搜尋功能
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,44 +60,76 @@ const GitBasics = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 ">
       <div className="flex flex-col lg:flex-row justify-between gap-6">
         {/* 內容區 */}
         <div className="flex-1 pr-6">
           {/* Git 指令列表 */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4 text-[#62FFFC]">
+            <h2
+              className={`text-2xl font-semibold mb-4 ${
+                darkMode ? 'text-[#62FFFC]' : 'text-blue-800'
+              }`}
+            >
               常用 Git 指令
             </h2>
+
             <ul className="space-y-4">
               {filteredCommands.map((command) => (
                 <li
                   key={command.id}
-                  className="p-4 border-b border-gray-300 shadow-sm "
                   id={command.id}
+                  className={`p-4 border-b shadow-sm rounded ${
+                    darkMode
+                      ? 'border-gray-600 bg-gray-800'
+                      : 'border-gray-300 bg-white'
+                  }`}
                 >
+                  {/* 指令標題 */}
                   <h4
-                    className="font-bold text-xl"
-                    style={{ color: '#62FFFC' }}
+                    className={`font-bold text-xl ${
+                      darkMode ? 'text-[#62FFFC]' : 'text-blue-800'
+                    }`}
                   >
                     {command.command}
                   </h4>
+
+                  {/* 指令描述 */}
                   <p
-                    className="text-gray-300 mb-4"
-                    style={{ color: '#E8E6E3' }}
+                    className={`mb-4 ${
+                      darkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`}
                   >
                     {command.description}
                   </p>
+
+                  {/* 指令區塊 */}
                   <div className="rounded overflow-hidden">
-                    <div className="bg-gray-700 text-right">
+                    <div
+                      className={`text-right p-2 ${
+                        darkMode ? 'bg-gray-700' : 'bg-gray-200'
+                      }`}
+                    >
                       <button
                         onClick={() => handleCopy(command.id, command.command)}
-                        className="copy-button text-white  px-4 rounded"
+                        className={`copy-button px-4 rounded ${
+                          darkMode
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-blue-700 text-white'
+                        }`}
                       >
                         {copiedCommandId === command.id ? '✓ 已複製' : '❐ 複製'}
                       </button>
                     </div>
-                    <pre className="bg-gray-800 text-white p-2 rounded">
+
+                    {/* 指令顯示區塊 */}
+                    <pre
+                      className={`p-2 rounded ${
+                        darkMode
+                          ? 'bg-gray-900 text-white'
+                          : 'bg-gray-100 text-black'
+                      }`}
+                    >
                       <code>{command.command}</code>
                     </pre>
                   </div>
@@ -106,10 +140,18 @@ const GitBasics = () => {
         </div>
 
         {/* 快速導覽區 */}
-        <div className="lg:w-1/3 lg:block hidden sticky top-6 bg-[#1f1f1f] p-4 rounded-lg shadow-lg">
+        <div
+          className={`lg:w-1/3 lg:block hidden sticky top-6 p-4 rounded-lg shadow-lg ${
+            darkMode ? 'bg-[#1f1f1f]' : 'bg-gray-100'
+          }`}
+        >
           {/* 搜尋框 */}
           <div className="relative mb-6">
-            <span className="absolute inset-y-0 left-3 flex items-center text-[#62FFFC]">
+            <span
+              className={`absolute inset-y-0 left-3 flex items-center ${
+                darkMode ? 'text-[#62FFFC]' : 'text-blue-800'
+              }`}
+            >
               🔍
             </span>
 
@@ -117,7 +159,11 @@ const GitBasics = () => {
             <input
               type="text"
               placeholder="搜尋"
-              className="pl-10 pr-4 py-3 w-full border border-gray-600 bg-gray-800 text-white rounded-lg shadow-md focus:outline-none  transition"
+              className={`pl-10 pr-4 py-3 w-full border rounded-lg shadow-md focus:outline-none transition ${
+                darkMode
+                  ? 'border-gray-600 bg-gray-800 text-white'
+                  : 'border-gray-300 bg-white text-black'
+              }`}
               value={searchQuery}
               onChange={handleSearch}
             />
@@ -128,7 +174,9 @@ const GitBasics = () => {
               <li key={command.id}>
                 <button
                   onClick={() => handleScrollTo(command.id)}
-                  className="text-[#62FFFC] hover:underline"
+                  className={`hover:underline ${
+                    darkMode ? 'text-[#62FFFC]' : 'text-blue-800'
+                  }`}
                 >
                   {command.command}
                 </button>

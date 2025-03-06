@@ -1,8 +1,12 @@
-// src/App.tsx
-import AppRoutes from './Router';
+import AppRoutes from './routes/Router';
+import { DarkModeProvider } from './context/DarkModeContext';
 
 function App() {
-  return <AppRoutes />;
+  return (
+    <DarkModeProvider>
+      <AppRoutes />;
+    </DarkModeProvider>
+  );
 }
 
 export default App;

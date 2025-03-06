@@ -1,21 +1,19 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useDarkMode } from '../context/DarkModeContext';
 
 export default function Layout() {
   // 取得當前路由
   const location = useLocation();
 
   // 取得 `localStorage` 的初始值
-  const getInitialDarkMode = () => {
-    const storedValue = localStorage.getItem('darkMode');
-    // 預設開啟黑暗模式
-    return storedValue === null ? true : storedValue === 'true';
-  };
   const getInitialSidebarState = () =>
     localStorage.getItem('sidebarOpen') !== 'false';
 
+  // 全域狀態
+  const { darkMode, setDarkMode } = useDarkMode();
+
   // 狀態管理
-  const [darkMode, setDarkMode] = useState(getInitialDarkMode);
   const [sidebarOpen, setSidebarOpen] = useState(getInitialSidebarState);
   // 控制手機版漢堡選單
   const [menuOpen, setMenuOpen] = useState(false);
@@ -27,10 +25,6 @@ export default function Layout() {
   );
 
   // 儲存至 `localStorage`
-  useEffect(
-    () => localStorage.setItem('darkMode', darkMode.toString()),
-    [darkMode]
-  );
   useEffect(
     () => localStorage.setItem('sidebarOpen', sidebarOpen.toString()),
     [sidebarOpen]
@@ -229,13 +223,9 @@ function NavLinks({
 }
 
 /* 黑暗模式開關 */
-function DarkModeToggle({
-  darkMode,
-  setDarkMode,
-}: {
-  darkMode: boolean;
-  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+function DarkModeToggle() {
+  const { darkMode, setDarkMode } = useDarkMode();
+
   return (
     <div
       className={`relative w-14 h-7 rounded-full p-1 transition-colors cursor-pointer ${
