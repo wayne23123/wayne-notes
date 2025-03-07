@@ -133,7 +133,7 @@ export default function Layout() {
           <nav className="hidden lg:flex items-center">
             <NavLinks darkMode={darkMode} />
             <div className="px-2">
-              <DarkModeToggle darkMode={darkMode} setDarkMode={setDarkMode} />
+              <DarkModeToggle />
             </div>
           </nav>
         </div>
@@ -142,7 +142,7 @@ export default function Layout() {
         {menuOpen && (
           <nav className="lg:hidden bg-gray-700 text-white flex flex-col items-center py-4 space-y-3">
             <NavLinks darkMode={darkMode} onClick={() => setMenuOpen(false)} />
-            <DarkModeToggle darkMode={darkMode} setDarkMode={setDarkMode} />
+            <DarkModeToggle />
           </nav>
         )}
       </header>
