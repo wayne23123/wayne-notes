@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
+import { useDarkMode } from '../../context/DarkModeContext';
 
 export default function Tools() {
+  const { darkMode } = useDarkMode();
   const [base64, setBase64] = useState('');
   const [svgData, setSvgData] = useState('');
   const [thresholdLow, setThresholdLow] = useState(50);
@@ -31,7 +33,6 @@ export default function Tools() {
 
   function processImage() {
     setIsProcessing(true);
-    console.log(1);
     const img = new Image();
     img.src = base64;
     img.onload = function () {
@@ -152,7 +153,11 @@ export default function Tools() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6">
-      <h1 className="text-3xl font-bold text-center">
+      <h1
+        className={`text-3xl font-bold text-center ${
+          darkMode ? 'text-[#62FFFC]' : 'text-blue-800'
+        }`}
+      >
         開發工具 - Base64 轉 SVG
       </h1>
 
@@ -162,11 +167,19 @@ export default function Tools() {
           type="file"
           accept="image/*"
           onChange={handleFileUpload}
-          className="p-2 border rounded w-full md:w-auto"
+          className={`p-2 border rounded w-full md:w-auto ${
+            darkMode
+              ? 'border-gray-600 bg-gray-800 text-white'
+              : 'border-gray-300 bg-white text-black'
+          }`}
         />
         <textarea
           rows={3}
-          className="p-2 border rounded w-full"
+          className={`p-2 border rounded w-full ${
+            darkMode
+              ? 'border-gray-600 bg-gray-800 text-white'
+              : 'border-gray-300 bg-white text-black'
+          }`}
           placeholder="輸入 Base64 圖片數據..."
           value={base64}
           onChange={handleBase64Input}
@@ -212,15 +225,23 @@ export default function Tools() {
           <h2 className="text-2xl font-semibold">轉換後的 SVG</h2>
           <div
             dangerouslySetInnerHTML={{ __html: svgData }}
-            className="border p-4 mt-2"
+            className={`flex justify-center border p-4 mt-2 ${
+              darkMode ? 'bg-gray-400 text-white' : 'bg-gray-100 text-white'
+            }`}
           ></div>
           <button
             onClick={() => navigator.clipboard.writeText(svgData)}
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+            className={`mt-4 px-4 py-2 rounded ${
+              darkMode ? 'bg-blue-500 text-white' : 'bg-blue-700 text-white'
+            }`}
           >
             複製 SVG 代碼
           </button>
-          <pre className="bg-gray-100 p-4 border mt-2 text-left h-28 overflow-auto whitespace-pre-wrap">
+          <pre
+            className={`p-4 border mt-2 text-left h-28 overflow-auto whitespace-pre-wrap ${
+              darkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-black'
+            }`}
+          >
             {svgData}
           </pre>
         </div>

@@ -17,6 +17,8 @@ export const DarkModeProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     localStorage.setItem('darkMode', darkMode.toString());
+
+    document.body.style.backgroundColor = darkMode ? '#111827' : '#E5E7EB';
   }, [darkMode]);
 
   return (

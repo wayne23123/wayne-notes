@@ -90,7 +90,7 @@ export default function Layout() {
 
   return (
     <div
-      className={`min-h-screen flex flex-col transition-colors ${
+      className={`flex flex-col transition-colors ${
         darkMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-200 text-black'
       }`}
     >
