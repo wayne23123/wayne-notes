@@ -11,7 +11,7 @@ export default function Layout() {
     localStorage.getItem('sidebarOpen') !== 'false';
 
   // 全域狀態
-  const { darkMode, setDarkMode } = useDarkMode();
+  const { darkMode } = useDarkMode();
 
   // 狀態管理
   const [sidebarOpen, setSidebarOpen] = useState(getInitialSidebarState);
