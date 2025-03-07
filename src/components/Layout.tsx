@@ -377,6 +377,16 @@ function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
       <h2 className="text-lg font-semibold mb-4">🛠️ 開發工具</h2>
       <nav className="space-y-2">
         <Link
+          to="/tools/clamp-calculator"
+          className={`block p-2 text-sm rounded transition-all duration-300 ${
+            darkMode
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
+          }`}
+        >
+          Clamp-Calculator
+        </Link>
+        <Link
           to="/tools/base64-svg"
           className={`block p-2 text-sm rounded transition-all duration-300 ${
             darkMode
@@ -385,26 +395,6 @@ function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
           }`}
         >
           base64-svg
-        </Link>
-        <Link
-          to="/tools/tool2"
-          className={`block p-2 text-sm rounded transition-all duration-300 ${
-            darkMode
-              ? 'hover:bg-gray-700 text-gray-200'
-              : 'hover:bg-gray-200 text-gray-900'
-          }`}
-        >
-          工具2
-        </Link>
-        <Link
-          to="/tools/tool3"
-          className={`block p-2 text-sm rounded transition-all duration-300 ${
-            darkMode
-              ? 'hover:bg-gray-700 text-gray-200'
-              : 'hover:bg-gray-200 text-gray-900'
-          }`}
-        >
-          工具3
         </Link>
       </nav>
     </>
