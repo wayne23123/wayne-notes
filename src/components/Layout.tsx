@@ -387,6 +387,16 @@ function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
           Clamp-Calculator
         </Link>
         <Link
+          to="/tools/stock-data-covert"
+          className={`block p-2 text-sm rounded transition-all duration-300 ${
+            darkMode
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
+          }`}
+        >
+          StockDataCovert
+        </Link>
+        <Link
           to="/tools/base64-svg"
           className={`block p-2 text-sm rounded transition-all duration-300 ${
             darkMode

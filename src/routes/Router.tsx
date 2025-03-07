@@ -6,6 +6,7 @@ import Notes from '../pages/Notes';
 import GitBasics from '../pages/notes/git/GitBasics';
 import Tools from '../pages/Tools';
 import ClampCalculator from '../pages/tools/ClampCalculator';
+import StockDataCovert from '../pages/tools/StockDataCovert';
 import Base64ToSvg from '../pages/tools/Base64ToSvg';
 
 const AppRoutes = () => {
@@ -19,6 +20,7 @@ const AppRoutes = () => {
           <Route path="notes/git-basics" element={<GitBasics />} />
           <Route path="tools" element={<Tools />} />
           <Route path="tools/clamp-calculator" element={<ClampCalculator />} />
+          <Route path="tools/stock-data-covert" element={<StockDataCovert />} />
           <Route path="tools/base64-svg" element={<Base64ToSvg />} />
         </Route>
       </Routes>
