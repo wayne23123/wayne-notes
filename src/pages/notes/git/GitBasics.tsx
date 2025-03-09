@@ -34,6 +34,61 @@ const GitBasics = () => {
       command: 'git pull <remote> <branch>',
       description: '從遠程倉庫拉取最新更改',
     },
+    {
+      id: 'install',
+      command: 'nvm install <version>',
+      description: '安裝指定版本的 Node.js',
+    },
+    {
+      id: 'uninstall',
+      command: 'nvm uninstall <version>',
+      description: '移除指定版本的 Node.js',
+    },
+    {
+      id: 'use',
+      command: 'nvm use <version>',
+      description: '切換至指定版本的 Node.js',
+    },
+    {
+      id: 'list',
+      command: 'nvm list',
+      description: '列出已安裝的 Node.js 版本',
+    },
+    {
+      id: 'current',
+      command: 'nvm current',
+      description: '顯示目前使用中的 Node.js 版本',
+    },
+    {
+      id: 'alias',
+      command: 'nvm alias <name> <version>',
+      description: '為特定版本建立別名',
+    },
+    {
+      id: 'unalias',
+      command: 'nvm unalias <name>',
+      description: '刪除指定的別名',
+    },
+    {
+      id: 'list-remote',
+      command: 'nvm list-remote',
+      description: '列出所有可用的 Node.js 版本',
+    },
+    {
+      id: 'exec',
+      command: 'nvm exec <version> <command>',
+      description: '使用特定版本執行指令',
+    },
+    {
+      id: 'run',
+      command: 'nvm run <version> <file.js>',
+      description: '使用特定版本執行 JavaScript 檔案',
+    },
+    {
+      id: 'which',
+      command: 'nvm which <version>',
+      description: '顯示指定版本的 Node.js 安裝路徑',
+    },
   ];
 
   const filteredCommands = gitCommands.filter((cmd) =>
