@@ -4,7 +4,7 @@ import { DarkModeProvider } from './context/DarkModeContext';
 function App() {
   return (
     <DarkModeProvider>
-      <AppRoutes />;
+      <AppRoutes />
     </DarkModeProvider>
   );
 }
