@@ -116,7 +116,7 @@ export default function Layout() {
             </div>
             <div className="px-2 text-2xl font-bold">
               <Link to="/" className="hover:text-blue-400">
-                Wayne's Note
+                Wayne's Notes
               </Link>
             </div>
           </div>
