@@ -196,8 +196,8 @@ const GitBasics = () => {
 
         {/* 快速導覽區 */}
         <div
-          className={`lg:w-1/3 lg:block hidden sticky top-6 p-4 rounded-lg shadow-lg ${
-            darkMode ? 'bg-[#1f1f1f]' : 'bg-gray-100'
+          className={`lg:w-1/3 lg:block hidden sticky top-16 p-4 rounded-lg shadow-lg self-start ${
+            darkMode ? 'bg-gray-800' : 'bg-gray-100'
           }`}
         >
           {/* 搜尋框 */}

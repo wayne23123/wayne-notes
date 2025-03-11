@@ -337,11 +337,14 @@ function NotesSidebar({
       <h2 className="text-lg font-semibold mb-4">📂 筆記分類</h2>
       <nav className="space-y-2">
         <AccordionItem
-          title="Git"
+          title="工具指令"
           isOpen={openSection === 'git'}
           onClick={() => toggleSection('git')}
           links={[
-            { to: '/notes/git-basics', label: '常用 Git 指令' },
+            {
+              to: '/notes/tools-command/git-basics',
+              label: 'Git 指令',
+            },
             // { to: '/notes/git-commands', label: '常用 Git 指令' },
           ]}
           darkMode={darkMode}
@@ -350,10 +353,7 @@ function NotesSidebar({
           title="JavaScript"
           isOpen={openSection === 'js'}
           onClick={() => toggleSection('js')}
-          links={[
-            { to: '/notes/js-basics', label: '變數與類型' },
-            { to: '/notes/js-functions', label: '函式與閉包' },
-          ]}
+          links={[{ to: '/notes/java-script/JSON', label: 'JSON' }]}
           darkMode={darkMode}
         />
         <AccordionItem

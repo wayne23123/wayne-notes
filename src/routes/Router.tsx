@@ -3,11 +3,12 @@ import Layout from '../components/Layout';
 import Home from '../pages/Home';
 import Blog from '../pages/Blog';
 import Notes from '../pages/Notes';
-import GitBasics from '../pages/notes/git/GitBasics';
+import GitBasics from '../pages/Notes/ToolsCommand/GitBasics';
+import JavaScriptJSON from '../pages/Notes/JavaScript/JSON';
 import Tools from '../pages/Tools';
-import ClampCalculator from '../pages/tools/ClampCalculator';
-import StockDataCovert from '../pages/tools/StockDataCovert';
-import Base64ToSvg from '../pages/tools/Base64ToSvg';
+import ClampCalculator from '../pages/Tools/ClampCalculator';
+import StockDataCovert from '../pages/Tools/StockDataCovert';
+import Base64ToSvg from '../pages/Tools/Base64ToSvg';
 
 const AppRoutes = () => {
   return (
@@ -17,7 +18,11 @@ const AppRoutes = () => {
           <Route index element={<Home />} />
           <Route path="blog" element={<Blog />} />
           <Route path="notes" element={<Notes />}></Route>
-          <Route path="notes/git-basics" element={<GitBasics />} />
+          <Route
+            path="notes/tools-command/git-basics"
+            element={<GitBasics />}
+          />
+          <Route path="notes/java-script/JSON" element={<JavaScriptJSON />} />
           <Route path="tools" element={<Tools />} />
           <Route path="tools/clamp-calculator" element={<ClampCalculator />} />
           <Route path="tools/stock-data-covert" element={<StockDataCovert />} />

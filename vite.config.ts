@@ -5,4 +5,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   base: '/wayne-notes/',
+  server: {
+    // Vite 自動打開瀏覽器
+    open: true,
+  },
 });
