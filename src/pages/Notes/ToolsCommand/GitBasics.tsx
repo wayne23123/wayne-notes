@@ -34,6 +34,87 @@ const GitBasics = () => {
       command: 'git pull <remote> <branch>',
       description: '從遠程倉庫拉取最新更改',
     },
+
+    {
+      id: 'fetch',
+      command: 'git fetch --all',
+      description: '獲取遠端分支更新（不會合並）',
+    },
+
+    {
+      id: 'local-branches',
+      command: 'git branch',
+      description: '查看本地分支',
+    },
+    {
+      id: 'remote-branches',
+      command: 'git branch -r',
+      description: '查看遠端倉庫的所有分支',
+    },
+    {
+      id: 'all-branches',
+      command: 'git branch -a',
+      description: '查看本地和遠端的所有分支',
+    },
+
+    {
+      id: 'switch-branch',
+      command: 'git checkout <branch>',
+      description: '切換到指定分支',
+    },
+    {
+      id: 'create-and-switch',
+      command: 'git checkout -b <new-branch> <remote-branch>',
+      description: '從遠端分支創建本地分支並切換',
+    },
+    {
+      id: 'switch-new',
+      command: 'git switch --track <remote>/<branch>',
+      description: '（Git 2.23+）直接切換到遠端分支',
+    },
+
+    {
+      id: 'update-develop',
+      command: 'git checkout develop && git pull origin develop',
+      description: '切換到 develop 並更新遠端最新變更',
+    },
+
+    {
+      id: 'merge-develop',
+      command: 'git checkout <feature-branch> && git merge develop',
+      description: '將 develop 分支合併到當前分支',
+    },
+
+    {
+      id: 'push-feature',
+      command: 'git push origin <feature-branch>',
+      description: '推送 feature 分支到遠端',
+    },
+
+    {
+      id: 'create-pr',
+      command: '在 GitHub/GitLab 創建 Pull Request',
+      description: '發送 PR，選擇 `base: develop`，`compare: feature-branch`',
+    },
+
+    {
+      id: 'update-pr',
+      command:
+        'git add . && git commit -m "Fix: ..." && git push origin <feature-branch>',
+      description: '在 PR 期間修改內容並推送更新',
+    },
+
+    {
+      id: 'switch-main',
+      command: 'git checkout main',
+      description: '切換回 main 分支',
+    },
+    {
+      id: 'fetch-main',
+      command: 'git checkout -b main origin/main',
+      description: '如果本地沒有 main，從遠端創建並切換',
+    },
+
     {
       id: 'install',
       command: 'nvm install <version>',
