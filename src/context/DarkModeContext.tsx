@@ -17,6 +17,8 @@ export const DarkModeProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     localStorage.setItem('darkMode', darkMode.toString());
+
+    document.body.style.backgroundColor = darkMode ? '#111827' : '#E5E7EB';
   }, [darkMode]);
 
   return (
@@ -29,7 +31,7 @@ export const DarkModeProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useDarkMode = () => {
   const context = useContext(DarkModeContext);
   if (!context) {
-    throw new Error('useDarkMode 必須在 DarkModeProvider 內使用');
+    throw new Error('useDarkMode 必须在 DarkModeProvider 内使用');
   }
   return context;
 };
