@@ -11,7 +11,7 @@ export default function ClampCalculator() {
 
   // 計算 Clamp 值
   const calculateClamp = () => {
-    const formula = `clamp(${minSize}px, calc(${maxSize}px + (${minSize}px - ${maxSize}px) * ((100vw - 800px) / (375px - 800px))), ${maxSize}px);`;
+    const formula = `clamp(${minSize}px, calc(${maxSize}px + (${minSize} - ${maxSize}) * ((100vw - 800px) / (375 - 800))), ${maxSize}px);`;
 
     setClampResult(formula);
     setFormulaResult(`
