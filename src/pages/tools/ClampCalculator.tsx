@@ -1,38 +1,46 @@
 import { useState } from 'react';
-import { useDarkMode } from '../../context/DarkModeContext'; // 引入黑暗模式 Context
+import { useDarkMode } from '../../context/DarkModeContext';
 
 export default function ClampCalculator() {
-  const { darkMode } = useDarkMode(); // 取得 darkMode 狀態
+  const { darkMode } = useDarkMode();
+
   const [maxSize, setMaxSize] = useState(20);
   const [minSize, setMinSize] = useState(0);
+  const [maxWidth, setMaxWidth] = useState(800); // 🔥 新增最大寬度
   const [clampResult, setClampResult] = useState('');
   const [formulaResult, setFormulaResult] = useState('');
-  const [copyText, setCopyText] = useState('複製'); // 控制按鈕文字
+  const [copyText, setCopyText] = useState('複製');
 
-  // 計算 Clamp 值
   const calculateClamp = () => {
-    const formula = `clamp(${minSize}px, calc(${maxSize}px + (${minSize} - ${maxSize}) * ((100vw - 800px) / (375 - 800))), ${maxSize}px);`;
+    if (minSize > maxSize) {
+      alert('❗ 最小值不能大於最大值');
+      return;
+    }
 
-    setClampResult(formula);
-    setFormulaResult(`
-      clamp(最小值, 計算公式, 最大值)
-      最小值 = ${minSize}px
-      最大值 = ${maxSize}px
-      計算公式 = calc(${maxSize}px + (${minSize}px - ${maxSize}px) * ((100vw - 800px) / (375px - 800px)))
-    `);
+    const clamp = `clamp(${minSize}px, calc(${maxSize}px + (${minSize} - ${maxSize}) * ((100vw - ${maxWidth}px) / (${375} - ${maxWidth}))), ${maxSize}px);`;
+
+    const formula = `
+clamp(最小值, 計算公式, 最大值)
+最小值 = ${minSize}px
+最大值 = ${maxSize}px
+響應範圍 = 375px ~ ${maxWidth}px
+計算公式 = calc(${maxSize}px + (${minSize}px - ${maxSize}px) * ((100vw - ${maxWidth}px) / (375px - ${maxWidth}px)))
+    `;
+
+    setClampResult(clamp);
+    setFormulaResult(formula);
   };
 
-  // 複製到剪貼簿
-  const copyToClipboard = () => {
-    navigator.clipboard
-      .writeText(clampResult)
-      .then(() => {
-        setCopyText('✓ 已複製'); // ✅ 變成「✓ 已複製」
+  const calcOnlyFormula = `calc(${minSize}px + ${
+    maxSize - minSize
+  } * ((100vw - 375px) / ${maxWidth - 375}))`;
 
-        // 2 秒後恢復按鈕文字
-        setTimeout(() => {
-          setCopyText('複製');
-        }, 2000);
+  const copyToClipboard = (text: string, customText = '✓ 已複製') => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setCopyText(customText);
+        setTimeout(() => setCopyText('複製'), 2000);
       })
       .catch((err) => {
         console.error('複製失敗:', err);
@@ -53,7 +61,7 @@ export default function ClampCalculator() {
         Clamp 計算器
       </h2>
 
-      {/* 文字輸入框 */}
+      {/* 輸入欄位區 */}
       <div className="space-y-4">
         <div>
           <label className="block font-semibold">800px 時的大小(px):</label>
@@ -82,6 +90,20 @@ export default function ClampCalculator() {
             }`}
           />
         </div>
+
+        <div>
+          <label className="block font-semibold">最大寬度（px）：</label>
+          <input
+            type="number"
+            value={maxWidth}
+            onChange={(e) => setMaxWidth(parseFloat(e.target.value))}
+            className={`w-full p-2 rounded border ${
+              darkMode
+                ? 'border-gray-600 bg-gray-800 text-white'
+                : 'border-gray-300 bg-white text-black'
+            }`}
+          />
+        </div>
       </div>
 
       {/* 計算按鈕 */}
@@ -92,7 +114,7 @@ export default function ClampCalculator() {
         計算
       </button>
 
-      {/* Clamp 結果 */}
+      {/* clamp 結果 */}
       {clampResult && (
         <div
           className={`mt-6 p-4 rounded-lg shadow ${
@@ -102,19 +124,19 @@ export default function ClampCalculator() {
           }`}
         >
           <div className="flex justify-between items-center">
-            <h3 className="font-bold text-lg">Clamp 結果：</h3>
+            <h3 className="font-bold text-lg">Clamp 寫法：</h3>
             <button
-              onClick={copyToClipboard}
+              onClick={() => copyToClipboard(clampResult)}
               className="p-1 bg-green-500 text-white rounded hover:bg-green-600"
             >
-              {copyText} {/* ✅ 按鈕文字會變化 */}
+              {copyText}
             </button>
           </div>
           <p className="mt-2 font-mono">{clampResult}</p>
         </div>
       )}
 
-      {/* 計算公式 */}
+      {/* clamp 計算說明 */}
       {formulaResult && (
         <div
           className={`mt-4 p-4 rounded-lg shadow ${
@@ -123,8 +145,30 @@ export default function ClampCalculator() {
               : 'bg-gray-100 border-gray-300'
           }`}
         >
-          <h3 className="font-bold text-lg">計算公式：</h3>
+          <h3 className="font-bold text-lg">計算公式說明：</h3>
           <pre className="whitespace-pre-wrap mt-2">{formulaResult}</pre>
+        </div>
+      )}
+
+      {/* calc 寫法 */}
+      {minSize !== null && maxSize !== null && (
+        <div
+          className={`mt-4 p-4 rounded-lg shadow ${
+            darkMode
+              ? 'bg-gray-800 border-gray-700'
+              : 'bg-gray-100 border-gray-300'
+          }`}
+        >
+          <div className="flex justify-between items-center">
+            <h3 className="font-bold text-lg">不限最大值寫法：</h3>
+            <button
+              onClick={() => copyToClipboard(calcOnlyFormula)}
+              className="p-1 bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              {copyText}
+            </button>
+          </div>
+          <p className="mt-2 font-mono">{calcOnlyFormula}</p>
         </div>
       )}
     </div>
