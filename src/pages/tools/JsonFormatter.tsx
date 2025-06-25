@@ -86,11 +86,38 @@ export default function JsonTool() {
   // 尝试支援修复非 JSON 格式（例如：单引号、JSONP、无引号 key）
   const evalToJson = (text) => {
     const cleaned = text
-      .replace(/\/\/.*$/gm, '')              // 移除单行注解
-      .replace(/\/\*[\s\S]*?\*\//g, '')      // 移除多行注解
-      .replace(/^\s*[\w$]+\s*\(\s*/, '')     // 去除 JSONP 函式开头
-      .replace(/\);\s*$/, '');               // 去除 JSONP 结尾
+      .replace(/\/\/.*$/gm, '') // 移除单行注解
+      .replace(/\/\*[\s\S]*?\*\//g, '') // 移除多行注解
+      .replace(/^\s*[\w$]+\s*\(\s*/, '') // 去除 JSONP 函式开头
+      .replace(/\);\s*$/, ''); // 去除 JSONP 结尾
     return eval(`(${cleaned})`);
+  };
+
+  // 递回排序 JSON key
+  const sortJson = (value) => {
+    if (Array.isArray(value)) {
+      return value.map(sortJson); // 阵列元素递回排序
+    } else if (value !== null && typeof value === 'object') {
+      const sorted = {};
+      Object.keys(value)
+        .sort()
+        .forEach((key) => {
+          sorted[key] = sortJson(value[key]);
+        });
+      return sorted;
+    }
+    return value; // 原始型别回传原值
+  };
+
+  const handleSort = () => {
+    try {
+      saveSnapshot();
+      const obj = evalToJson(input);
+      const sorted = sortJson(obj);
+      setOutput(JSON.stringify(sorted, null, 2));
+    } catch (e) {
+      setOutput(`⚠️ 排序错误：${e.message}`);
+    }
   };
 
   return (
@@ -99,9 +126,7 @@ export default function JsonTool() {
         darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'
       }`}
     >
-      <h1 className="text-2xl font-bold text-center mb-4">
-        JSON 处理工具
-      </h1>
+      <h1 className="text-2xl font-bold text-center mb-4">JSON 处理工具</h1>
 
       <div className="flex flex-col md:flex-row gap-4">
         {/* 左边输入 */}
@@ -130,10 +155,22 @@ export default function JsonTool() {
       </div>
 
       <div className="flex flex-wrap justify-center gap-3 mt-4">
-        <button onClick={handleFormat} className="btn-blue">格式化 (Ctrl+L)</button>
-        <button onClick={handleCompact} className="btn-blue">压缩 (Ctrl+Shift+L)</button>
-        <button onClick={handleUndo} className="btn-gray">上一步</button>
-        <button onClick={handleRedo} className="btn-gray">下一步</button>
+        <button onClick={handleSort} className="btn-blue">
+          排序 JSON Keys
+        </button>
+
+        <button onClick={handleFormat} className="btn-blue">
+          格式化 (Ctrl+L)
+        </button>
+        <button onClick={handleCompact} className="btn-blue">
+          压缩 (Ctrl+Shift+L)
+        </button>
+        <button onClick={handleUndo} className="btn-gray">
+          上一步
+        </button>
+        <button onClick={handleRedo} className="btn-gray">
+          下一步
+        </button>
       </div>
 
       <style jsx>{`
