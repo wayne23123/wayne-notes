@@ -21,11 +21,45 @@ export default function DataConverter() {
         values.push('$' + match[1].replace(/,/g, ''));
       }
 
-      setOutputText(
-        values.length > 0 ? values.join('\n') : '未找到符合的數值。'
-      );
+      if (values.length === 0) {
+        const lines = inputText.trim().split('\n').filter(Boolean);
+        const recordSize = 11;
+        const tableRecords: string[] = [];
+
+        let startIndex = lines.findIndex((line) => /^\d+$/.test(line.trim()));
+        if (startIndex === -1) startIndex = 0;
+
+        for (
+          let i = startIndex;
+          i + recordSize <= lines.length;
+          i += recordSize
+        ) {
+          const name = lines[i + 1]?.trim();
+          const code = lines[i + 2]?.trim();
+          const price = lines[i + 3]?.trim();
+          const volumeRaw = lines[i + 9]?.replace(/,/g, '').trim();
+
+          const isValidName = /^[\u4e00-\u9fa5A-Za-z0-9]+$/.test(name);
+          const isValidCode = /^\d{4}\.TW$/.test(code);
+          const isValidPrice = /^\d+(\.\d+)?$/.test(price);
+          const isValidVolume = /^\d+$/.test(volumeRaw);
+
+          if (isValidName && isValidCode && isValidPrice && isValidVolume) {
+            tableRecords.push(`${name}、${price}、${volumeRaw}、${code}`);
+          }
+        }
+
+        setOutputText(
+          tableRecords.length > 0
+            ? tableRecords.join('\n')
+            : '未找到符合的资料格式。'
+        );
+      } else {
+        // 原始正则 match 有结果时 → 仅输出这部分
+        setOutputText(values.join('\n'));
+      }
     } catch (error) {
-      setOutputText('解析錯誤，請輸入正確的數據格式。');
+      setOutputText('解析错误，请输入正确的数据格式。');
     }
   };
 
@@ -40,10 +74,10 @@ export default function DataConverter() {
           darkMode ? 'text-[#62FFFC]' : 'text-blue-800'
         }`}
       >
-        數據轉換器
+        数据转换器
       </h2>
 
-      {/* 文字輸入框 */}
+      {/* 文字输入框 */}
       <div className="flex flex-col md:flex-row gap-4">
         <textarea
           className={`w-full md:w-1/2 p-3 border rounded resize-none ${
@@ -52,7 +86,7 @@ export default function DataConverter() {
               : 'border-gray-300 bg-white text-black'
           }`}
           rows={8}
-          placeholder="在此輸入數據..."
+          placeholder="在此输入数据..."
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
         ></textarea>
@@ -64,18 +98,18 @@ export default function DataConverter() {
               : 'border-gray-300 bg-white text-black'
           }`}
           rows={8}
-          placeholder="轉換後的數值..."
+          placeholder="转换后的数值..."
           value={outputText}
           readOnly
         ></textarea>
       </div>
 
-      {/* 轉換按鈕 */}
+      {/* 转换按钮 */}
       <button
         onClick={convertData}
         className="w-full mt-4 p-2 text-white font-bold rounded bg-blue-500 hover:bg-blue-700"
       >
-        轉換
+        转换
       </button>
     </div>
   );
