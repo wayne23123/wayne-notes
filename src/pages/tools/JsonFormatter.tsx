@@ -5,8 +5,13 @@ export default function JsonTool() {
   const { darkMode } = useDarkMode();
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
-  const [history, setHistory] = useState([]);
-  const [redoStack, setRedoStack] = useState([]);
+  const [history, setHistory] = useState<{ input: string; output: string }[]>(
+    []
+  );
+
+  const [redoStack, setRedoStack] = useState<
+    { input: string; output: string }[]
+  >([]);
   const inputRef = useRef(null);
 
   // 初始载入 localStorage
@@ -23,9 +28,8 @@ export default function JsonTool() {
     localStorage.setItem('json_output', output);
   }, [input, output]);
 
-  // 快捷键事件（Ctrl+L / Ctrl+Shift+L）
   useEffect(() => {
-    const handleKey = (e) => {
+    const handleKey = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key.toLowerCase() === 'l') {
         e.preventDefault();
         if (e.shiftKey) {
@@ -35,9 +39,11 @@ export default function JsonTool() {
         }
       }
     };
+
     window.addEventListener('keydown', handleKey);
+
     return () => window.removeEventListener('keydown', handleKey);
-  }, [input]);
+  }, []);
 
   // 快照储存
   const saveSnapshot = () => {
@@ -48,10 +54,14 @@ export default function JsonTool() {
   const handleFormat = () => {
     try {
       saveSnapshot();
-      const obj = evalToJson(input); // 修复/支援非纯 JSON 格式
+      const obj = evalToJson(input); // 支援非纯 JSON 格式
       setOutput(JSON.stringify(obj, null, 2));
     } catch (e) {
-      setOutput(`⚠️ 格式错误：${e.message}`);
+      if (e instanceof Error) {
+        setOutput(`⚠️ 格式错误：${e.message}`);
+      } else {
+        setOutput('⚠️ 格式错误：未知例外');
+      }
     }
   };
 
@@ -61,7 +71,11 @@ export default function JsonTool() {
       const obj = evalToJson(input);
       setOutput(JSON.stringify(obj));
     } catch (e) {
-      setOutput(`⚠️ 压缩错误：${e.message}`);
+      if (e instanceof Error) {
+        setOutput(`⚠️ 压缩错误：${e.message}`);
+      } else {
+        setOutput('⚠️ 压缩错误：未知例外');
+      }
     }
   };
 
@@ -84,21 +98,21 @@ export default function JsonTool() {
   };
 
   // 尝试支援修复非 JSON 格式（例如：单引号、JSONP、无引号 key）
-  const evalToJson = (text) => {
+  const evalToJson = (text: string): any => {
     const cleaned = text
       .replace(/\/\/.*$/gm, '') // 移除单行注解
       .replace(/\/\*[\s\S]*?\*\//g, '') // 移除多行注解
-      .replace(/^\s*[\w$]+\s*\(\s*/, '') // 去除 JSONP 函式开头
-      .replace(/\);\s*$/, ''); // 去除 JSONP 结尾
+      .replace(/^\s*[\w$]+\s*\(\s*/, '') // 移除 JSONP 开头
+      .replace(/\);\s*$/, ''); // 移除 JSONP 结尾
     return eval(`(${cleaned})`);
   };
 
   // 递回排序 JSON key
-  const sortJson = (value) => {
+  const sortJson = (value: any): any => {
     if (Array.isArray(value)) {
-      return value.map(sortJson); // 阵列元素递回排序
+      return value.map(sortJson);
     } else if (value !== null && typeof value === 'object') {
-      const sorted = {};
+      const sorted: { [key: string]: any } = {};
       Object.keys(value)
         .sort()
         .forEach((key) => {
@@ -106,7 +120,7 @@ export default function JsonTool() {
         });
       return sorted;
     }
-    return value; // 原始型别回传原值
+    return value;
   };
 
   const handleSort = () => {
@@ -116,7 +130,11 @@ export default function JsonTool() {
       const sorted = sortJson(obj);
       setOutput(JSON.stringify(sorted, null, 2));
     } catch (e) {
-      setOutput(`⚠️ 排序错误：${e.message}`);
+      if (e instanceof Error) {
+        setOutput(`⚠️ 排序错误：${e.message}`);
+      } else {
+        setOutput('⚠️ 排序错误：未知例外');
+      }
     }
   };
 
@@ -173,7 +191,7 @@ export default function JsonTool() {
         </button>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .btn-blue {
           background: #2563eb;
           color: white;
