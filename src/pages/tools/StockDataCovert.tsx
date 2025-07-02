@@ -39,8 +39,8 @@ export default function DataConverter() {
           const price = lines[i + 3]?.trim();
           const volumeRaw = lines[i + 9]?.replace(/,/g, '').trim();
 
-          const isValidName = /^[\u4e00-\u9fa5A-Za-z0-9]+$/.test(name);
-          const isValidCode = /^\d{4}\.TW$/.test(code);
+          const isValidName = !!name;
+          const isValidCode = /^\d{4,5}[A-Z]?\.(TW|TWO)$/.test(code);
           const isValidPrice = /^\d+(\.\d+)?$/.test(price);
           const isValidVolume = /^\d+$/.test(volumeRaw);
 

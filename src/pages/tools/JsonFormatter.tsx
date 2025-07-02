@@ -191,7 +191,7 @@ export default function JsonTool() {
         </button>
       </div>
 
-      <style>{`
+      {/* <style>{`
         .btn-blue {
           background: #2563eb;
           color: white;
@@ -214,7 +214,7 @@ export default function JsonTool() {
         .btn-gray:hover {
           background: #4b5563;
         }
-      `}</style>
+      `}</style> */}
     </div>
   );
 }
