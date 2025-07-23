@@ -1,40 +1,40 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { useDarkMode } from "../context/DarkModeContext";
+import { Link, Outlet, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useDarkMode } from '../context/DarkModeContext';
 
 export default function Layout() {
-  // 取得当前路由
+  // 取得當前路由
   const location = useLocation();
 
   // 取得 `localStorage` 的初始值
   const getInitialSidebarState = () =>
-    localStorage.getItem("sidebarOpen") !== "false";
+    localStorage.getItem('sidebarOpen') !== 'false';
 
-  // 全域状态
+  // 全域狀態
   const { darkMode } = useDarkMode();
 
-  // 状态管理
+  // 狀態管理
   const [sidebarOpen, setSidebarOpen] = useState(getInitialSidebarState);
-  // 控制手机版汉堡选单
+  // 控制手機版漢堡選單
   const [menuOpen, setMenuOpen] = useState(false);
-  // 只允许一个手风琴展开
+  // 只允許一個手風琴展開
   const [openSection, setOpenSection] = useState<string | null>(null);
-  // 动态 Sidebar
+  // 動態 Sidebar
   const [currentSidebar, setCurrentSidebar] = useState<React.ReactNode | null>(
     null
   );
 
-  // 储存至 `localStorage`
+  // 儲存至 `localStorage`
   useEffect(
-    () => localStorage.setItem("sidebarOpen", sidebarOpen.toString()),
+    () => localStorage.setItem('sidebarOpen', sidebarOpen.toString()),
     [sidebarOpen]
   );
 
-  // 监听路由变化，更新 Sidebar
+  // 監聽路由變化，更新 Sidebar
   useEffect(() => {
-    if (location.pathname === "/") {
+    if (location.pathname === '/') {
       setCurrentSidebar(<HomeSidebar darkMode={darkMode} />);
-    } else if (location.pathname.startsWith("/blog")) {
+    } else if (location.pathname.startsWith('/blog')) {
       setCurrentSidebar(
         <BlogSidebar
           openSection={openSection}
@@ -42,7 +42,7 @@ export default function Layout() {
           darkMode={darkMode}
         />
       );
-    } else if (location.pathname.startsWith("/notes")) {
+    } else if (location.pathname.startsWith('/notes')) {
       setCurrentSidebar(
         <NotesSidebar
           openSection={openSection}
@@ -50,21 +50,21 @@ export default function Layout() {
           darkMode={darkMode}
         />
       );
-    } else if (location.pathname.startsWith("/tools")) {
+    } else if (location.pathname.startsWith('/tools')) {
       setCurrentSidebar(<ToolsSidebar darkMode={darkMode} />);
     } else {
-      setCurrentSidebar(null); // 其他页面不显示侧边栏
+      setCurrentSidebar(null); // 其他頁面不顯示側邊欄
     }
   }, [location.pathname, darkMode]);
 
-  // 手风琴展开/收合（当开启 A，B 会自动关闭）
+  // 手風琴展開/收合（當開啟 A，B 會自動關閉）
   const toggleSection = (section: string) => {
     setOpenSection((prev) => (prev === section ? null : section));
   };
 
-  // 根据当前路由决定显示的侧边栏
+  // 根據當前路由決定顯示的側邊欄
   const getSidebar = () => {
-    if (location.pathname.startsWith("/blog")) {
+    if (location.pathname.startsWith('/blog')) {
       return (
         <BlogSidebar
           openSection={openSection}
@@ -72,7 +72,7 @@ export default function Layout() {
           darkMode={darkMode}
         />
       );
-    } else if (location.pathname.startsWith("/notes")) {
+    } else if (location.pathname.startsWith('/notes')) {
       return (
         <NotesSidebar
           openSection={openSection}
@@ -80,26 +80,26 @@ export default function Layout() {
           darkMode={darkMode}
         />
       );
-    } else if (location.pathname.startsWith("/tools")) {
+    } else if (location.pathname.startsWith('/tools')) {
       return <ToolsSidebar darkMode={darkMode} />;
-    } else if (location.pathname === "/") {
-      return <HomeSidebar darkMode={darkMode} />; // ✅ 传递 darkMode
+    } else if (location.pathname === '/') {
+      return <HomeSidebar darkMode={darkMode} />; // ✅ 傳遞 darkMode
     }
-    return null; // 不显示侧边栏
+    return null; // 不顯示側邊欄
   };
 
   return (
     <div
       className={`flex flex-col transition-colors ${
-        darkMode ? "bg-gray-900 text-gray-200" : "bg-gray-200 text-black"
+        darkMode ? 'bg-gray-900 text-gray-200' : 'bg-gray-200 text-black'
       }`}
     >
       {/* Header */}
       <header
         className={`w-full fixed top-0 left-0 z-50 transition-colors ${
           darkMode
-            ? "bg-gray-800 text-white shadow-lg"
-            : "bg-gray-100 text-black shadow-md"
+            ? 'bg-gray-800 text-white shadow-lg'
+            : 'bg-gray-100 text-black shadow-md'
         }`}
       >
         <div className="w-full px-4 flex justify-between items-center">
@@ -107,11 +107,11 @@ export default function Layout() {
             <div>
               <button
                 className={`px-2 rounded-lg transition-all duration-300 ${
-                  darkMode ? "bg-gray-700 text-white" : "bg-gray-200 text-black"
+                  darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-black'
                 }`}
                 onClick={() => setSidebarOpen(!sidebarOpen)}
               >
-                {sidebarOpen ? "☰" : "☰"}
+                {sidebarOpen ? '☰' : '☰'}
               </button>
             </div>
             <div className="px-2 text-2xl font-bold">
@@ -121,7 +121,7 @@ export default function Layout() {
             </div>
           </div>
 
-          {/* 汉堡选单 (手机版) */}
+          {/* 漢堡選單 (手機版) */}
           <button
             className="lg:hidden px-2 py-2"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -129,7 +129,7 @@ export default function Layout() {
             ☰
           </button>
 
-          {/* Header 选单 (电脑版) */}
+          {/* Header 選單 (電腦版) */}
           <nav className="hidden lg:flex items-center">
             <NavLinks darkMode={darkMode} />
             <div className="px-2">
@@ -138,7 +138,7 @@ export default function Layout() {
           </nav>
         </div>
 
-        {/* 手机版的下拉选单 */}
+        {/* 手機版的下拉選單 */}
         {menuOpen && (
           <nav className="lg:hidden bg-gray-700 text-white flex flex-col items-center py-4 space-y-3">
             <NavLinks darkMode={darkMode} onClick={() => setMenuOpen(false)} />
@@ -153,9 +153,9 @@ export default function Layout() {
         {getSidebar() && (
           <aside
             className={`transition-all duration-300 fixed top-10 h-screen overflow-auto shadow-md ${
-              sidebarOpen ? "w-64 p-4" : "w-0 p-0 overflow-hidden"
+              sidebarOpen ? 'w-64 p-4' : 'w-0 p-0 overflow-hidden'
             } ${
-              darkMode ? "bg-gray-800 text-gray-200" : "bg-gray-300 text-black"
+              darkMode ? 'bg-gray-800 text-gray-200' : 'bg-gray-300 text-black'
             }`}
           >
             {currentSidebar && sidebarOpen && getSidebar()}
@@ -165,7 +165,7 @@ export default function Layout() {
         {/* Main Content */}
         <main
           className={`flex-1 p-6 transition-all duration-300 ${
-            sidebarOpen ? "ml-64" : "ml-0"
+            sidebarOpen ? 'ml-64' : 'ml-0'
           }`}
         >
           <Outlet />
@@ -175,7 +175,7 @@ export default function Layout() {
   );
 }
 
-/* Header 选单 */
+/* Header 選單 */
 function NavLinks({
   onClick,
   darkMode,
@@ -189,8 +189,8 @@ function NavLinks({
         to="/blog"
         className={`block p-2 rounded transition-all duration-300 ${
           darkMode
-            ? "bg-gray-800 text-gray-200 hover:bg-gray-700"
-            : "bg-white text-gray-900 hover:bg-gray-200"
+            ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
+            : 'bg-white text-gray-900 hover:bg-gray-200'
         }`}
         onClick={onClick}
       >
@@ -200,19 +200,19 @@ function NavLinks({
         to="/notes"
         className={`block p-2 rounded transition-all duration-300 ${
           darkMode
-            ? "bg-gray-800 text-gray-200 hover:bg-gray-700"
-            : "bg-white text-gray-900 hover:bg-gray-200"
+            ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
+            : 'bg-white text-gray-900 hover:bg-gray-200'
         }`}
         onClick={onClick}
       >
-        笔记
+        筆記
       </Link>
       <Link
         to="/tools"
         className={`block p-2 rounded transition-all duration-300 ${
           darkMode
-            ? "bg-gray-800 text-gray-200 hover:bg-gray-700"
-            : "bg-white text-gray-900 hover:bg-gray-200"
+            ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
+            : 'bg-white text-gray-900 hover:bg-gray-200'
         }`}
         onClick={onClick}
       >
@@ -222,38 +222,38 @@ function NavLinks({
   );
 }
 
-/* 黑暗模式开关 */
+/* 黑暗模式開關 */
 function DarkModeToggle() {
   const { darkMode, setDarkMode } = useDarkMode();
 
   return (
     <div
       className={`relative w-14 h-7 rounded-full p-1 transition-colors cursor-pointer ${
-        darkMode ? "bg-gray-700" : "bg-gray-300"
+        darkMode ? 'bg-gray-700' : 'bg-gray-300'
       }`}
       onClick={() => setDarkMode(!darkMode)}
     >
       <div
         className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-all duration-300 ${
-          darkMode ? "translate-x-7" : "translate-x-0"
+          darkMode ? 'translate-x-7' : 'translate-x-0'
         }`}
       ></div>
     </div>
   );
 }
 
-/* **首页专用侧边导览列** */
+/* **首頁專用側邊導覽列** */
 function HomeSidebar({ darkMode }: { darkMode: boolean }) {
   return (
     <>
-      <h2 className="text-lg font-semibold mb-4">🏠 导览列</h2>
+      <h2 className="text-lg font-semibold mb-4">🏠 導覽列</h2>
       <nav className="space-y-2">
         <Link
           to="/blog"
           className={`block p-2 text-sm rounded transition-all duration-300 ${
             darkMode
-              ? "hover:bg-gray-700 text-gray-200"
-              : "hover:bg-gray-200 text-gray-900"
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
           }`}
         >
           📖 前往部落格
@@ -262,28 +262,28 @@ function HomeSidebar({ darkMode }: { darkMode: boolean }) {
           to="/notes"
           className={`block p-2 text-sm rounded transition-all duration-300 ${
             darkMode
-              ? "hover:bg-gray-700 text-gray-200"
-              : "hover:bg-gray-200 text-gray-900"
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
           }`}
         >
-          📒 前往笔记
+          📒 前往筆記
         </Link>
         <Link
           to="/tools"
           className={`block p-2 text-sm rounded transition-all duration-300 ${
             darkMode
-              ? "hover:bg-gray-700 text-gray-200"
-              : "hover:bg-gray-200 text-gray-900"
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
           }`}
         >
-          🛠️ 开发工具
+          🛠️ 開發工具
         </Link>
       </nav>
     </>
   );
 }
 
-/* 部落格侧边导览列 */
+/* 部落格側邊導覽列 */
 function BlogSidebar({
   openSection,
   toggleSection,
@@ -295,25 +295,25 @@ function BlogSidebar({
 }) {
   return (
     <>
-      <h2 className="text-lg font-semibold mb-4">📰 部落格分类</h2>
+      <h2 className="text-lg font-semibold mb-4">📰 部落格分類</h2>
       <nav className="space-y-2">
         <AccordionItem
-          title="前端开发"
-          isOpen={openSection === "frontend"}
-          onClick={() => toggleSection("frontend")}
+          title="前端開發"
+          isOpen={openSection === 'frontend'}
+          onClick={() => toggleSection('frontend')}
           links={[
-            { to: "/blog/frontend/react", label: "React" },
-            { to: "/blog/frontend/vue", label: "Vue" },
+            { to: '/blog/frontend/react', label: 'React' },
+            { to: '/blog/frontend/vue', label: 'Vue' },
           ]}
           darkMode={darkMode}
         />
         <AccordionItem
-          title="后端开发"
-          isOpen={openSection === "backend"}
-          onClick={() => toggleSection("backend")}
+          title="後端開發"
+          isOpen={openSection === 'backend'}
+          onClick={() => toggleSection('backend')}
           links={[
-            { to: "/blog/backend/nodejs", label: "Node.js" },
-            { to: "/blog/backend/django", label: "Django" },
+            { to: '/blog/backend/nodejs', label: 'Node.js' },
+            { to: '/blog/backend/django', label: 'Django' },
           ]}
           darkMode={darkMode}
         />
@@ -322,7 +322,7 @@ function BlogSidebar({
   );
 }
 
-/* 笔记侧边导览列 */
+/* 筆記側邊導覽列 */
 function NotesSidebar({
   openSection,
   toggleSection,
@@ -334,16 +334,16 @@ function NotesSidebar({
 }) {
   return (
     <>
-      <h2 className="text-lg font-semibold mb-4">📂 笔记分类</h2>
+      <h2 className="text-lg font-semibold mb-4">📂 筆記分類</h2>
       <nav className="space-y-2">
         <AccordionItem
           title="工具指令"
-          isOpen={openSection === "git"}
-          onClick={() => toggleSection("git")}
+          isOpen={openSection === 'git'}
+          onClick={() => toggleSection('git')}
           links={[
             {
-              to: "/notes/tools-command/git-basics",
-              label: "Git 指令",
+              to: '/notes/tools-command/git-basics',
+              label: 'Git 指令',
             },
             // { to: '/notes/git-commands', label: '常用 Git 指令' },
           ]}
@@ -351,18 +351,18 @@ function NotesSidebar({
         />
         <AccordionItem
           title="JavaScript"
-          isOpen={openSection === "js"}
-          onClick={() => toggleSection("js")}
-          links={[{ to: "/notes/java-script/JSON", label: "JSON" }]}
+          isOpen={openSection === 'js'}
+          onClick={() => toggleSection('js')}
+          links={[{ to: '/notes/java-script/JSON', label: 'JSON' }]}
           darkMode={darkMode}
         />
         <AccordionItem
           title="React"
-          isOpen={openSection === "react"}
-          onClick={() => toggleSection("react")}
+          isOpen={openSection === 'react'}
+          onClick={() => toggleSection('react')}
           links={[
-            { to: "/notes/react-hooks", label: "Hooks" },
-            { to: "/notes/react-router", label: "React Router" },
+            { to: '/notes/react-hooks', label: 'Hooks' },
+            { to: '/notes/react-router', label: 'React Router' },
           ]}
           darkMode={darkMode}
         />
@@ -374,14 +374,14 @@ function NotesSidebar({
 function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
   return (
     <>
-      <h2 className="text-lg font-semibold mb-4">🛠️ 开发工具</h2>
+      <h2 className="text-lg font-semibold mb-4">🛠️ 開發工具</h2>
       <nav className="space-y-2">
         <Link
           to="/tools/json-formatter"
           className={`block p-2 text-sm rounded transition-all duration-300 ${
             darkMode
-              ? "hover:bg-gray-700 text-gray-200"
-              : "hover:bg-gray-200 text-gray-900"
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
           }`}
         >
           JSON-Formatter
@@ -390,18 +390,28 @@ function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
           to="/tools/clamp-calculator"
           className={`block p-2 text-sm rounded transition-all duration-300 ${
             darkMode
-              ? "hover:bg-gray-700 text-gray-200"
-              : "hover:bg-gray-200 text-gray-900"
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
           }`}
         >
           Clamp-Calculator
         </Link>
         <Link
+          to="/tools/shadow-text-generator"
+          className={`block p-2 text-sm rounded transition-all duration-300 ${
+            darkMode
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
+          }`}
+        >
+          Shadow-Text-Generator
+        </Link>
+        <Link
           to="/tools/stock-data-covert"
           className={`block p-2 text-sm rounded transition-all duration-300 ${
             darkMode
-              ? "hover:bg-gray-700 text-gray-200"
-              : "hover:bg-gray-200 text-gray-900"
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
           }`}
         >
           StockDataCovert
@@ -410,8 +420,8 @@ function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
           to="/tools/base64-svg"
           className={`block p-2 text-sm rounded transition-all duration-300 ${
             darkMode
-              ? "hover:bg-gray-700 text-gray-200"
-              : "hover:bg-gray-200 text-gray-900"
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
           }`}
         >
           base64-svg
@@ -421,7 +431,7 @@ function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
   );
 }
 
-/* 手风琴元件 */
+/* 手風琴元件 */
 function AccordionItem({
   title,
   isOpen,
@@ -441,17 +451,17 @@ function AccordionItem({
         onClick={onClick}
         className={`flex items-center justify-between w-full p-2 rounded transition-colors ${
           darkMode
-            ? "hover:bg-gray-700 text-gray-200"
-            : "hover:bg-gray-200 text-gray-900"
+            ? 'hover:bg-gray-700 text-gray-200'
+            : 'hover:bg-gray-200 text-gray-900'
         }`}
       >
         {title}
         {isOpen ? <ChevronDown /> : <ChevronRight />}
       </button>
-      {/* CSS 过渡动画 */}
+      {/* CSS 過渡動畫 */}
       <div
         className={`overflow-hidden transition-all duration-300 ${
-          isOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+          isOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
         <div className="pl-4 mt-2 space-y-1">
@@ -461,8 +471,8 @@ function AccordionItem({
               to={link.to}
               className={`block p-2 text-sm rounded transition-all duration-300 ${
                 darkMode
-                  ? "hover:bg-gray-700 text-gray-200"
-                  : "hover:bg-gray-200 text-gray-900"
+                  ? 'hover:bg-gray-700 text-gray-200'
+                  : 'hover:bg-gray-200 text-gray-900'
               }`}
             >
               {link.label}
@@ -474,7 +484,7 @@ function AccordionItem({
   );
 }
 
-// ChevronRight 手写 SVG
+// ChevronRight 手寫 SVG
 function ChevronRight() {
   return (
     <svg
@@ -494,7 +504,7 @@ function ChevronRight() {
   );
 }
 
-// ChevronDown 手写 SVG
+// ChevronDown 手寫 SVG
 function ChevronDown() {
   return (
     <svg
