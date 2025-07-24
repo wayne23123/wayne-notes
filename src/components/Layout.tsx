@@ -387,6 +387,16 @@ function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
           JSON-Formatter
         </Link>
         <Link
+          to="/tools/css-formatter"
+          className={`block p-2 text-sm rounded transition-all duration-300 ${
+            darkMode
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
+          }`}
+        >
+          Css-Formatter
+        </Link>
+        <Link
           to="/tools/clamp-calculator"
           className={`block p-2 text-sm rounded transition-all duration-300 ${
             darkMode
