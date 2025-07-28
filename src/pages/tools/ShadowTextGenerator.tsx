@@ -246,7 +246,6 @@ const ShadowTextGenerator: React.FC = () => {
             style={{
               color,
               WebkitTextStroke: `${strokeWidth}px ${strokeColor}`,
-              textStroke: `${strokeWidth}px ${strokeColor}`,
             }}
           >
             {text}
