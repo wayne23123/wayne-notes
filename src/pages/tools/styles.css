@@ -1,0 +1,36 @@
+.title-hollow-wrapper {
+  position: relative;
+  display: inline-block;
+  font-size: clamp(
+    24px,
+    calc(52px + (24 - 52) * ((100vw - 800px) / (375 - 800))),
+    52px
+  );
+  font-weight: bold;
+}
+
+.shadow-layer {
+  position: absolute;
+  top: 2px;
+  left: 0px;
+  color: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.stroke-layer {
+  position: relative;
+  color: #fff;
+  -webkit-text-stroke: clamp(
+      1px,
+      calc(2px + (1 - 2) * ((100vw - 800px) / (375 - 800))),
+      2px
+    )
+    #57887e;
+  text-stroke: clamp(
+      1px,
+      calc(2px + (1 - 2) * ((100vw - 800px) / (375 - 800))),
+      2px
+    )
+    #57887e;
+  z-index: 2;
+}

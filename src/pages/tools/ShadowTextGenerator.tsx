@@ -1,116 +1,292 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useDarkMode } from '../../context/DarkModeContext';
+import './styles.css';
 
-export default function DataConverter() {
+const ShadowTextGenerator: React.FC = () => {
   const { darkMode } = useDarkMode();
-  const [inputText, setInputText] = useState('');
-  const [outputText, setOutputText] = useState('');
 
-  const convertData = () => {
+  const [text, setText] = useState('預設文字');
+  const [color, setColor] = useState('#ffffff');
+  const [strokeColor, setStrokeColor] = useState('#57887E');
+  const [shadowColor, setShadowColor] = useState('rgba(0,0,0,0.3)');
+  const [fontSize, setFontSize] = useState(52);
+  const [strokeWidth, setStrokeWidth] = useState(2);
+  const [shadowOffsetY, setShadowOffsetY] = useState(2);
+  const [fontWeight, setFontWeight] = useState('bold');
+  const [htmlCopied, setHtmlCopied] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const htmlCode = `
+<div class="title-hollow-wrapper">
+  <span class="shadow-layer">${text}</span>
+  <span class="stroke-layer">${text}</span>
+</div>
+`;
+
+  const cssCode = `
+.title-hollow-wrapper {
+  position: relative;
+  display: inline-block;
+  font-size: ${fontSize}px;
+  font-weight: ${fontWeight};
+}
+
+.shadow-layer {
+  position: absolute;
+  top: ${shadowOffsetY}px;
+  left: 0px;
+  color: ${shadowColor};
+  z-index: 1;
+}
+
+.stroke-layer {
+  position: relative;
+  color: ${color};
+  -webkit-text-stroke: ${strokeWidth}px ${strokeColor};
+  text-stroke: ${strokeWidth}px ${strokeColor};
+  z-index: 2;
+}`;
+
+  const handleCopyHtml = async () => {
     try {
-      const stockRegex = /"tse_\d+\.tw"\s*:\s*([\d\.]+)/g;
-      const cryptoRegex = /\$(\d{1,3}(?:,\d{3})*(?:\.\d+)?)/g;
-      let match;
-      let values: string[] = [];
+      await navigator.clipboard.writeText(htmlCode);
+      setHtmlCopied(true);
+      setTimeout(() => setHtmlCopied(false), 1500);
+    } catch (err) {
+      console.error('複製 HTML 失敗', err);
+    }
+  };
 
-      while ((match = stockRegex.exec(inputText)) !== null) {
-        values.push(match[1]);
-      }
-
-      while ((match = cryptoRegex.exec(inputText)) !== null) {
-        values.push('$' + match[1].replace(/,/g, ''));
-      }
-
-      if (values.length === 0) {
-        const lines = inputText.trim().split('\n').filter(Boolean);
-        const recordSize = 11;
-        const tableRecords: string[] = [];
-
-        let startIndex = lines.findIndex((line) => /^\d+$/.test(line.trim()));
-        if (startIndex === -1) startIndex = 0;
-
-        for (
-          let i = startIndex;
-          i + recordSize <= lines.length;
-          i += recordSize
-        ) {
-          const name = lines[i + 1]?.trim();
-          const code = lines[i + 2]?.trim();
-          const price = lines[i + 3]?.trim();
-          const volumeRaw = lines[i + 9]?.replace(/,/g, '').trim();
-
-          const isValidName = !!name;
-          const isValidCode = /^\d{4,5}[A-Z]?\.(TW|TWO)$/.test(code);
-          const isValidPrice = /^\d+(\.\d+)?$/.test(price);
-          const isValidVolume = /^\d+$/.test(volumeRaw);
-
-          if (isValidName && isValidCode && isValidPrice && isValidVolume) {
-            tableRecords.push(`${name}、${price}、${volumeRaw}、${code}`);
-          }
-        }
-
-        setOutputText(
-          tableRecords.length > 0
-            ? tableRecords.join('\n')
-            : '未找到符合的資料格式。'
-        );
-      } else {
-        // 原始正則 match 有結果時 → 僅輸出這部分
-        setOutputText(values.join('\n'));
-      }
-    } catch (error) {
-      setOutputText('解析錯誤，請輸入正確的數據格式。');
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(cssCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.error('複製失敗', err);
     }
   };
 
   return (
     <div
-      className={`max-w-2xl mx-auto p-6 rounded-lg shadow-lg transition-colors ${
+      className={`max-w-lg mx-auto p-6 rounded-lg shadow-lg transition-colors ${
         darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'
       }`}
     >
-      <h2
-        className={`text-2xl font-bold text-center mb-4 ${
-          darkMode ? 'text-[#62FFFC]' : 'text-blue-800'
+      <h2 className="text-xl mb-4">陰影文字產生器</h2>
+      <input
+        className={`border p-2 mb-4 w-full ${
+          darkMode
+            ? 'bg-gray-800 border-gray-700'
+            : 'bg-gray-100 border-gray-300'
         }`}
-      >
-        陰影文字轉換器
-      </h2>
+        type="text"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="請輸入文字"
+      />
 
-      {/* 文字輸入框 */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <textarea
-          className={`w-full md:w-1/2 p-3 border rounded resize-none ${
-            darkMode
-              ? 'border-gray-600 bg-gray-800 text-white'
-              : 'border-gray-300 bg-white text-black'
-          }`}
-          rows={8}
-          placeholder="在此輸入數據..."
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-        ></textarea>
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <label>
+          前景色：
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              className={`w-10 h-10 p-1 border ${
+                darkMode
+                  ? 'bg-gray-800 border-gray-700'
+                  : 'bg-gray-100 border-gray-300'
+              }`}
+            />
+            <input
+              type="text"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              className={`border p-2 w-full ${
+                darkMode
+                  ? 'bg-gray-800 border-gray-700'
+                  : 'bg-gray-100 border-gray-300'
+              }`}
+            />
+          </div>
+        </label>
 
-        <textarea
-          className={`w-full md:w-1/2 p-3 border rounded resize-none ${
-            darkMode
-              ? 'border-gray-600 bg-gray-800 text-white'
-              : 'border-gray-300 bg-white text-black'
-          }`}
-          rows={8}
-          placeholder="轉換後的數值..."
-          value={outputText}
-          readOnly
-        ></textarea>
+        <label>
+          邊框色：
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={strokeColor}
+              onChange={(e) => setStrokeColor(e.target.value)}
+              className={`w-10 h-10 p-1 border ${
+                darkMode
+                  ? 'bg-gray-800 border-gray-700'
+                  : 'bg-gray-100 border-gray-300'
+              }`}
+            />
+            <input
+              type="text"
+              value={strokeColor}
+              onChange={(e) => setStrokeColor(e.target.value)}
+              className={`border p-2 w-full ${
+                darkMode
+                  ? 'bg-gray-800 border-gray-700'
+                  : 'bg-gray-100 border-gray-300'
+              }`}
+            />
+          </div>
+        </label>
+        <label>
+          陰影色：
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={shadowColor}
+              onChange={(e) => setShadowColor(e.target.value)}
+              className={`w-10 h-10 p-1 border ${
+                darkMode
+                  ? 'bg-gray-800 border-gray-700'
+                  : 'bg-gray-100 border-gray-300'
+              }`}
+            />
+            <input
+              type="text"
+              value={shadowColor}
+              onChange={(e) => setShadowColor(e.target.value)}
+              className={`border p-2 w-full ${
+                darkMode
+                  ? 'bg-gray-800 border-gray-700'
+                  : 'bg-gray-100 border-gray-300'
+              }`}
+            />
+          </div>
+        </label>
+        <label>
+          字體大小：
+          <input
+            className={`border p-2 mb-4 ${
+              darkMode
+                ? 'bg-gray-800 border-gray-700'
+                : 'bg-gray-100 border-gray-300'
+            }`}
+            type="number"
+            value={fontSize}
+            onChange={(e) => setFontSize(Number(e.target.value))}
+          />{' '}
+          px
+        </label>
+        <label>
+          邊框粗細：
+          <input
+            className={`border p-2 mb-4 ${
+              darkMode
+                ? 'bg-gray-800 border-gray-700'
+                : 'bg-gray-100 border-gray-300'
+            }`}
+            type="number"
+            value={strokeWidth}
+            onChange={(e) => setStrokeWidth(Number(e.target.value))}
+          />{' '}
+          px
+        </label>
+        <label>
+          陰影位移：
+          <input
+            className={`border p-2 mb-4 ${
+              darkMode
+                ? 'bg-gray-800 border-gray-700'
+                : 'bg-gray-100 border-gray-300'
+            }`}
+            type="number"
+            value={shadowOffsetY}
+            onChange={(e) => setShadowOffsetY(Number(e.target.value))}
+          />{' '}
+          px
+        </label>
+        <label className="col-span-2">
+          字重：
+          <div className="flex gap-4 mt-1">
+            {['normal', 'bold', 'bolder', 'lighter'].map((weight) => (
+              <label key={weight}>
+                <input
+                  type="radio"
+                  name="fontWeight"
+                  value={weight}
+                  checked={fontWeight === weight}
+                  onChange={() => setFontWeight(weight)}
+                />{' '}
+                {weight}
+              </label>
+            ))}
+          </div>
+        </label>
       </div>
 
-      {/* 轉換按鈕 */}
-      <button
-        onClick={convertData}
-        className="w-full mt-4 p-2 text-white font-bold rounded bg-blue-500 hover:bg-blue-700"
+      <div
+        className={`mb-6 flex justify-center ${
+          darkMode
+            ? 'bg-gray-800 border-gray-700'
+            : 'bg-gray-100 border-gray-300'
+        }`}
       >
-        轉換
+        <div
+          className={`relative inline-block `}
+          style={{ fontSize: fontSize, fontWeight: fontWeight }}
+        >
+          <span
+            className="absolute z-1"
+            style={{ color: shadowColor, top: `${shadowOffsetY}px` }}
+          >
+            {text}
+          </span>
+          <span
+            className="relative z-2"
+            style={{
+              color,
+              WebkitTextStroke: `${strokeWidth}px ${strokeColor}`,
+              textStroke: `${strokeWidth}px ${strokeColor}`,
+            }}
+          >
+            {text}
+          </span>
+        </div>
+      </div>
+
+      <button
+        onClick={handleCopyHtml}
+        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        {htmlCopied ? '已複製 HTML！' : '複製當前 HTML'}
       </button>
+
+      <pre
+        className={`mt-4 p-4 overflow-auto text-sm rounded ${
+          darkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-black'
+        }`}
+      >
+        <code>{htmlCode}</code>
+      </pre>
+
+      <div className="h-10"></div>
+
+      <button
+        onClick={handleCopy}
+        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+      >
+        {copied ? '已複製 CSS！' : '複製當前 CSS'}
+      </button>
+
+      <pre
+        className={`mt-4 p-4 overflow-auto text-sm rounded ${
+          darkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-black'
+        }`}
+      >
+        <code>{cssCode}</code>
+      </pre>
     </div>
   );
-}
+};
+
+export default ShadowTextGenerator;
