@@ -434,7 +434,17 @@ function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
               : 'hover:bg-gray-200 text-gray-900'
           }`}
         >
-          base64-svg
+          Base64-Svg
+        </Link>
+        <Link
+          to="/tools/word-count"
+          className={`block p-2 text-sm rounded transition-all duration-300 ${
+            darkMode
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
+          }`}
+        >
+          Word-Count
         </Link>
       </nav>
     </>
