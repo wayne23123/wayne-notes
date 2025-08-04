@@ -1,170 +1,205 @@
-import { useEffect, useState, useRef } from 'react';
+import { useState } from 'react';
 import { useDarkMode } from '../../context/DarkModeContext';
 
-export default function CssTool() {
+export default function TextStatsTool() {
   const { darkMode } = useDarkMode();
-  const [input, setInput] = useState('');
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  const [copied, setCopied] = useState(false);
+  const [paragraphInput, setParagraphInput] = useState('');
+  const [stringInput, setStringInput] = useState('');
+  const [copiedParagraph, setCopiedParagraph] = useState(false);
+  const [copiedString, setCopiedString] = useState(false);
 
-  // 格式化 CSS
-  const formatCss = () => {
-    try {
-      let css = input;
+  const clearParagraphInput = () => setParagraphInput('');
+  const clearStringInput = () => setStringInput('');
 
-      // 保留 <style> 標籤的開頭與結尾
-      const styleOpen = css.includes('<style>') ? '<style>' : '';
-      const styleClose = css.includes('</style>') ? '</style>' : '';
-      css = css.replace(/<\/?style>/g, '').trim(); // 移除 style 標籤本體處理
-
-      // 分段處理每個區塊
-      const rules = css
-        .split('}')
-        .map((rule) => {
-          const [selector, body] = rule.split('{');
-          if (!selector || !body) return '';
-
-          const cleanSelector = selector.trim();
-          const props = body
-            .split(';')
-            .map((prop) => prop.trim())
-            .filter(Boolean)
-            .map((prop) => `  ${prop};`) // 強制加上分號
-            .join('\n');
-
-          return `${cleanSelector} {\n${props}\n}`;
-        })
-        .filter(Boolean)
-        .join('\n\n');
-
-      const finalCss = `${styleOpen ? styleOpen + '\n' : ''}${rules}${
-        styleClose ? '\n' + styleClose : ''
-      }`;
-
-      setInput(finalCss);
-    } catch (err) {
-      alert('CSS 格式化失敗，請確認格式正確');
-    }
+  const trimLineEnd = () => {
+    const cleaned = paragraphInput
+      .split('\n')
+      .map((line) => line.replace(/\s+$/, ''))
+      .join('\n');
+    setParagraphInput(cleaned);
   };
 
-  // 壓縮 CSS
-  const minifyCss = () => {
-    try {
-      let css = input;
-
-      // 保留 <style> 標籤頭尾
-      const styleOpen = css.includes('<style>') ? '<style>' : '';
-      const styleClose = css.includes('</style>') ? '</style>' : '';
-      css = css.replace(/<\/?style>/g, '').trim();
-
-      // 移除註解
-      css = css.replace(/\/\*[\s\S]*?\*\//g, '');
-
-      // 去除換行與縮排
-      css = css.replace(/\s+/g, ' ');
-
-      // 移除屬性前後空白
-      css = css.replace(/\s*{\s*/g, '{');
-      css = css.replace(/\s*}\s*/g, '}');
-      css = css.replace(/\s*;\s*/g, ';');
-      css = css.replace(/\s*:\s*/g, ':');
-      css = css.replace(/\s*,\s*/g, ',');
-
-      // 確保每個屬性後都有 `;`
-      css = css.replace(/([^;{}])}/g, '$1;}'); // 如果在 } 前沒有 ; 則補上
-
-      const finalCss = `${styleOpen}${css}${styleClose}`;
-
-      setInput(finalCss);
-    } catch (err) {
-      alert('壓縮化失敗，請確認 CSS 正確');
-    }
+  const formatParagraphs = () => {
+    const formatted = paragraphInput
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => '  ' + line)
+      .join('\n');
+    setParagraphInput(formatted);
   };
 
-  const copyToClipboard = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(input).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      });
-    } else {
-      alert('瀏覽器不支援複製功能');
-    }
+  const copyParagraph = () => {
+    navigator.clipboard.writeText(paragraphInput);
+    setCopiedParagraph(true);
+    setTimeout(() => setCopiedParagraph(false), 2000);
   };
 
-  // 清除輸入
-  const clearInput = () => {
-    setInput('');
+  const copyString = () => {
+    navigator.clipboard.writeText(stringInput);
+    setCopiedString(true);
+    setTimeout(() => setCopiedString(false), 2000);
   };
 
-  useEffect(() => {
-    const savedCss = localStorage.getItem('css_tool_input');
-    if (savedCss) {
-      setInput(savedCss);
-    }
-  }, []);
+  const getStats = (input: string) => {
+    const chineseChar = input.match(/[\u4e00-\u9fff]/g) || [];
+    const chinesePunct =
+      input.match(/[，。！？【】（）《》“”‘’、；：「」]/g) || [];
+    const englishChar = input.match(/[A-Za-z]/g) || [];
+    const englishPunct = input.match(/[.,!?;:'"()\[\]{}]/g) || [];
+    const englishWords = input.match(/\b[a-zA-Z]+\b/g) || [];
+    const numberChar = input.match(/\d/g) || [];
+    const byteWords = input.match(/\b\S+\b/g) || [];
 
-  useEffect(() => {
-    localStorage.setItem('css_tool_input', input);
-  }, [input]);
+    return {
+      total: input.length,
+      numbers: numberChar.length,
+      lines: input.split(/\n/).filter((l) => l.trim()).length,
+      zhChars: chineseChar.length,
+      zhPunct: chinesePunct.length,
+      enChars: englishChar.length,
+      enPunct: englishPunct.length,
+      enWords: englishWords.length,
+      byteWords: byteWords.length,
+    };
+  };
+
+  const getLengthStats = (input: string) => {
+    let length = 0;
+    for (let char of input) {
+      if (/[一-鿿！＠＃￥％…（）—【】「」、；：‘’“”。，《》？]/.test(char)) {
+        length += 2;
+      } else {
+        length += 1;
+      }
+    }
+    return {
+      字數: length,
+      字符: input.length,
+      中文: (input.match(/[一-鿿]/g) || []).length,
+      字母: (input.match(/[A-Za-z]/g) || []).length,
+      數字: (input.match(/[0-9]/g) || []).length,
+      符號: (
+        input.match(/[！＠＃￥％…（）—【】「」、；：‘’“”。，《》？]/g) || []
+      ).length,
+    };
+  };
+
+  const stats = getStats(paragraphInput);
+  const lengthStats = getLengthStats(stringInput);
 
   return (
     <div
-      className={`max-w-5xl mx-auto p-4 transition-colors ${
+      className={`max-w-5xl mx-auto p-4 space-y-8 transition-colors ${
         darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'
       }`}
     >
-      <h1 className="text-2xl font-bold text-center mb-4">
-        CSS 格式化 / 壓縮工具
-      </h1>
+      <style>{`
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.5rem 1rem;
+          background-color: #2563eb;
+          color: white;
+          border-radius: 0.375rem;
+          font-weight: 500;
+          transition: background-color 0.2s;
+        }
+        .btn:hover {
+          background-color: #1d4ed8;
+        }
+      `}</style>
 
-      <div className="mb-4 flex gap-2 justify-center flex-wrap">
-        <button
-          onClick={formatCss}
-          className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-        >
-          格式化
-        </button>
-        <button
-          onClick={minifyCss}
-          className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
-        >
-          壓縮化
-        </button>
-        <button
-          onClick={clearInput}
-          className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
-        >
-          清除
-        </button>
+      <div
+        className={`${
+          darkMode ? 'bg-gray-800' : 'bg-white'
+        } shadow-md p-4 rounded-md`}
+      >
+        <h2 className="flex justify-center text-xl font-bold mb-4">段落統計</h2>
+
+        <div className="flex flex-wrap gap-2 mb-4">
+          <button onClick={clearParagraphInput} className="btn">
+            清空
+          </button>
+          <button onClick={trimLineEnd} className="btn">
+            清除行尾空格
+          </button>
+          <button onClick={formatParagraphs} className="btn">
+            段落整理＋前空格
+          </button>
+          <button onClick={copyParagraph} className="btn">
+            {copiedParagraph ? '已複製！' : '複製'}
+          </button>
+        </div>
+
+        <textarea
+          rows={10}
+          value={paragraphInput}
+          onChange={(e) => setParagraphInput(e.target.value)}
+          className={`w-full h-[400px] p-3 rounded border resize-none font-mono text-sm transition-colors ${
+            darkMode
+              ? 'bg-gray-800 border-gray-600 text-white'
+              : 'bg-gray-100 border-gray-300 text-black'
+          }`}
+          placeholder="請輸入段落內容..."
+        />
+
+        <ul className="text-sm leading-6 mt-4">
+          <li>總數：{stats.total}</li>
+          <li>數字：{stats.numbers}</li>
+          <li>行列（段落）數：{stats.lines}</li>
+          <li>
+            中文字數：{stats.zhChars} ｜ 中文標點符號數：{stats.zhPunct}
+          </li>
+          <li>
+            英文字數：{stats.enChars} ｜ 英文標點符號數：{stats.enPunct}
+          </li>
+          <li>
+            英文單詞數：{stats.enWords} ｜ 字節單詞數：{stats.byteWords}
+          </li>
+        </ul>
       </div>
 
       <div
-        className={`max-w-5xl mx-auto p-4 transition-colors ${
-          darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'
-        }`}
+        className={`${
+          darkMode ? 'bg-gray-800' : 'bg-white'
+        } shadow-md p-4 rounded-md`}
       >
-        <div className="mb-4 flex gap-2 justify-center flex-wrap">
-          <button
-            onClick={copyToClipboard}
-            className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-          >
-            {copied ? '已複製!' : '複製'}
+        <h2 className="flex justify-center text-xl font-bold mb-4">
+          字符串長度計算
+        </h2>
+
+        <div className="flex flex-wrap gap-2 mb-4">
+          <button onClick={clearStringInput} className="btn">
+            清除
+          </button>
+          <button onClick={copyString} className="btn">
+            {copiedString ? '已複製！' : '複製'}
           </button>
         </div>
-      </div>
 
-      <textarea
-        ref={inputRef}
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="請貼上或輸入 CSS"
-        className={`w-full h-[400px] p-3 rounded border resize-none font-mono text-sm transition-colors ${
-          darkMode
-            ? 'bg-gray-800 border-gray-600 text-white'
-            : 'bg-gray-100 border-gray-300 text-black'
-        }`}
-      />
+        <textarea
+          rows={6}
+          value={stringInput}
+          onChange={(e) => setStringInput(e.target.value)}
+          className={`w-full p-3 rounded border resize-none font-mono text-sm transition-colors ${
+            darkMode
+              ? 'bg-gray-800 border-gray-600 text-white'
+              : 'bg-gray-100 border-gray-300 text-black'
+          }`}
+          placeholder="請輸入要計算的字串..."
+        />
+
+        <ul className="text-sm leading-6 mt-4">
+          <li>
+            {lengthStats.字數} 個字數 ｜ {lengthStats.字符} 個字符
+          </li>
+          <li>
+            {lengthStats.中文} 個中文 ｜ {lengthStats.字母} 個字母 ｜{' '}
+            {lengthStats.數字} 個數字 ｜ {lengthStats.符號} 個符號(全形)
+          </li>
+        </ul>
+      </div>
     </div>
   );
 }
