@@ -30,6 +30,22 @@ export default function Layout() {
     [sidebarOpen]
   );
 
+useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)')
+    const handleResponsiveSidebar = (e: MediaQueryList | MediaQueryListEvent) => {
+      if (e.matches) {
+        setSidebarOpen(false) 
+      } else {
+        setSidebarOpen(true)
+      }
+    }
+    handleResponsiveSidebar(mediaQuery)
+    mediaQuery.addEventListener('change', handleResponsiveSidebar)
+    return () => {
+      mediaQuery.removeEventListener('change', handleResponsiveSidebar)
+    }
+  }, [])
+
   // 監聽路由變化，更新 Sidebar
   useEffect(() => {
     if (location.pathname === '/') {
