@@ -13,6 +13,7 @@ import ShadowTextGenerator from '../pages/Tools/ShadowTextGenerator';
 import StockDataCovert from '../pages/Tools/StockDataCovert';
 import Base64ToSvg from '../pages/Tools/Base64ToSvg';
 import WordCount from '../pages/Tools/WordCount';
+import CommonlyUsedSVG from '../pages/Tools/CommonlyUsedSVG';
 
 const AppRoutes = () => {
   return (
@@ -38,6 +39,7 @@ const AppRoutes = () => {
           <Route path="tools/stock-data-covert" element={<StockDataCovert />} />
           <Route path="tools/base64-svg" element={<Base64ToSvg />} />
           <Route path="tools/word-count" element={<WordCount />} />
+          <Route path="tools/commonly-used-svg" element={<CommonlyUsedSVG />} />
         </Route>
       </Routes>
     </Router>

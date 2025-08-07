@@ -30,21 +30,23 @@ export default function Layout() {
     [sidebarOpen]
   );
 
-useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 767px)')
-    const handleResponsiveSidebar = (e: MediaQueryList | MediaQueryListEvent) => {
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const handleResponsiveSidebar = (
+      e: MediaQueryList | MediaQueryListEvent
+    ) => {
       if (e.matches) {
-        setSidebarOpen(false) 
+        setSidebarOpen(false);
       } else {
-        setSidebarOpen(true)
+        setSidebarOpen(true);
       }
-    }
-    handleResponsiveSidebar(mediaQuery)
-    mediaQuery.addEventListener('change', handleResponsiveSidebar)
+    };
+    handleResponsiveSidebar(mediaQuery);
+    mediaQuery.addEventListener('change', handleResponsiveSidebar);
     return () => {
-      mediaQuery.removeEventListener('change', handleResponsiveSidebar)
-    }
-  }, [])
+      mediaQuery.removeEventListener('change', handleResponsiveSidebar);
+    };
+  }, []);
 
   // 監聽路由變化，更新 Sidebar
   useEffect(() => {
@@ -390,7 +392,11 @@ function NotesSidebar({
 function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
   return (
     <>
-      <h2 className="text-lg font-semibold mb-4">🛠️ 開發工具</h2>
+      <h2 className="flex text-xs font-semibold mb-4 select-none">
+        <div>Home</div>
+        <div className="text-gray-500">＞</div>
+        <div>開發工具</div>
+      </h2>
       <nav className="space-y-2">
         <Link
           to="/tools/json-formatter"
@@ -461,6 +467,16 @@ function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
           }`}
         >
           Word-Count
+        </Link>
+        <Link
+          to="/tools/commonly-used-svg"
+          className={`block p-2 text-sm rounded transition-all duration-300 ${
+            darkMode
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
+          }`}
+        >
+          Commonly-Used-SVG
         </Link>
       </nav>
     </>
