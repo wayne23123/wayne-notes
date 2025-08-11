@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Base64 图片预览器</title>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Heiti TC","Microsoft JhengHei",sans-serif;margin:0;padding:24px;background:#0b111b;color:#e2e8f0}
+    h1{font-size:20px;margin:0 0 16px}
+    .card{background:#0f172a;border:1px solid #1f2937;border-radius:16px;padding:16px;max-width:960px;margin:0 auto;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+    label{display:block;font-size:13px;color:#94a3b8;margin-bottom:6px}
+    textarea,input[type=text],select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #334155;background:#0b1220;color:#e2e8f0;outline:none}
+    textarea{min-height:140px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr;gap:12px}
+    .two{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+    @media (max-width:900px){.two{grid-template-columns:1fr}}
+    .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    button{padding:10px 14px;border-radius:12px;border:1px solid #334155;background:#111827;color:#e5e7eb;cursor:pointer}
+    button:hover{background:#0b1220}
+    .muted{color:#94a3b8;font-size:12px;margin-top:6px}
+    .preview{background:#0b1220;border:1px dashed #334155;border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:260px}
+    .preview img{max-width:100%;max-height:60vh;display:block;border-radius:8px}
+    .info{font-size:12px;color:#94a3b8;margin-top:8px;display:flex;gap:12px;flex-wrap:wrap}
+    .error{color:#fecaca}
+    .ok{color:#a7f3d0}
+    .pill{font-size:12px;padding:3px 8px;border-radius:999px;background:#111827;border:1px solid #334155;display:inline-block;margin-left:8px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Base64 图片预览器 <span class="pill">贴上 Base64 → 预览/下载</span></h1>
+
+    <div class="row">
+      <div class="two">
+        <div>
+          <label for="b64">Base64 内容（可含或不含 <code>data:</code> 前缀）</label>
+          <textarea id="b64" placeholder="例如：data:image/png;base64,iVBORw0KGgo... 或纯 Base64"></textarea>
+          <div class="btns">
+            <button id="previewBtn">预览</button>
+            <button id="clearBtn">清空</button>
+            <button id="sampleBtn">载入范例</button>
+          </div>
+          <div class="muted">若没有 <code>data:</code> 前缀，会以你右侧选的 MIME 类型自动补上。</div>
+        </div>
+
+        <div>
+          <label for="mime">MIME 类型</label>
+          <select id="mime">
+            <option value="image/png">image/png（.png）</option>
+            <option value="image/jpeg">image/jpeg（.jpg）</option>
+            <option value="image/webp">image/webp（.webp）</option>
+            <option value="image/gif">image/gif（.gif）</option>
+            <option value="image/svg+xml">image/svg+xml（.svg）</option>
+          </select>
+
+          <label for="filename" style="margin-top:10px">档名（下载用，可留空）</label>
+          <input id="filename" type="text" placeholder="例如：image.png" />
+          <div class="btns" style="margin-top:8px">
+            <button id="downloadBtn">下载图片</button>
+            <button id="copyDataUrlBtn">复制 Data URL</button>
+          </div>
+          <div id="status" class="muted"></div>
+        </div>
+      </div>
+
+      <div>
+        <label>预览</label>
+        <div class="preview">
+          <img id="img" alt="预览区" />
+        </div>
+        <div class="info">
+          <span id="infoType">类型：—</span>
+          <span id="infoSize">大小：约 —</span>
+          <span id="infoDim">尺寸：—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const b64El = $('b64');
+    const mimeEl = $('mime');
+    const imgEl = $('img');
+    const statusEl = $('status');
+    const infoTypeEl = $('infoType');
+    const infoSizeEl = $('infoSize');
+    const infoDimEl = $('infoDim');
+    const filenameEl = $('filename');
+
+    // 建立 Data URL：若输入已有 data: 前缀则直接用，否则补上
+    function buildDataUrl(input, fallbackMime) {
+      const raw = (input || '').trim();
+      if (!raw) return '';
+      if (raw.startsWith('data:')) return raw;
+      return `data:${fallbackMime};base64,${raw}`;
+    }
+
+    // 估算 Base64 原始大小（bytes）
+    function estimateBytesFromBase64(b64) {
+      const raw = b64.split(',').pop() || ''; // 去掉 data: 前缀
+      const len = raw.length;
+      // Base64 长度 → bytes 估算
+      const padding = (raw.endsWith('==') ? 2 : raw.endsWith('=') ? 1 : 0);
+      return Math.floor(len * 3 / 4) - padding;
+    }
+
+    function humanSize(bytes) {
+      if (!Number.isFinite(bytes) || bytes < 0) return '—';
+      const units = ['B','KB','MB','GB'];
+      let i = 0, n = bytes;
+      while (n >= 1024 && i < units.length-1) { n /= 1024; i++; }
+      return n.toFixed(n < 10 && i > 0 ? 2 : 0) + ' ' + units[i];
+    }
+
+    function extFromMime(mime) {
+      const map = {
+        'image/png': 'png',
+        'image/jpeg': 'jpg',
+        'image/webp': 'webp',
+        'image/gif': 'gif',
+        'image/svg+xml': 'svg'
+      };
+      return map[mime] || 'img';
+    }
+
+    function resetInfo() {
+      infoTypeEl.textContent = '类型：—';
+      infoSizeEl.textContent = '大小：约 —';
+      infoDimEl.textContent = '尺寸：—';
+    }
+
+    function setStatus(msg, ok=false) {
+      statusEl.innerHTML = ok ? `<span class="ok">${msg}</span>` : `<span class="error">${msg}</span>`;
+    }
+
+    // 预览流程
+    function preview() {
+      resetInfo();
+      setStatus('', true);
+      const dataUrl = buildDataUrl(b64El.value, mimeEl.value);
+      if (!dataUrl) {
+        imgEl.removeAttribute('src');
+        setStatus('请贴上 Base64 内容');
+        return;
+      }
+      // 尝试读 MIME
+      const match = /^data:([^;]+);base64,/i.exec(dataUrl);
+      const mime = match ? match[1] : mimeEl.value;
+      infoTypeEl.textContent = `类型：${mime}`;
+      infoSizeEl.textContent = `大小：约 ${humanSize(estimateBytesFromBase64(dataUrl))}`;
+
+      imgEl.onload = () => {
+        infoDimEl.textContent = `尺寸：${imgEl.naturalWidth} × ${imgEl.naturalHeight}`;
+        setStatus('载入成功', true);
+      };
+      imgEl.onerror = () => {
+        resetInfo();
+        setStatus('载入失败：请确认 Base64 与 MIME 类型是否正确');
+      };
+      imgEl.src = dataUrl;
+    }
+
+    // 下载图片
+    function download() {
+      const dataUrl = buildDataUrl(b64El.value, mimeEl.value);
+      if (!dataUrl) return setStatus('没有可下载的内容');
+      const mime = /^data:([^;]+);base64,/i.exec(dataUrl)?.[1] || mimeEl.value;
+      const a = document.createElement('a');
+      const defaultName = `image.${extFromMime(mime)}`;
+      a.download = (filenameEl.value.trim() || defaultName);
+      a.href = dataUrl;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setStatus('已触发下载', true);
+    }
+
+    // 复制 Data URL
+    async function copyDataUrl() {
+      const dataUrl = buildDataUrl(b64El.value, mimeEl.value);
+      if (!dataUrl) return setStatus('没有可复制的内容');
+      try {
+        await navigator.clipboard.writeText(dataUrl);
+        setStatus('已复制 Data URL 到剪贴簿', true);
+      } catch {
+        setStatus('复制失败：浏览器权限不允许');
+      }
+    }
+
+    // 范例（1×1 PNG 黑点）
+    const samplePng =
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAA' +
+      'AAC0lEQVR42mP8/x8AAwMCAO1lMcoAAAAASUVORK5CYII=';
+
+    // 绑定事件
+    $('previewBtn').onclick = preview;
+    $('clearBtn').onclick = () => {
+      b64El.value = '';
+      imgEl.removeAttribute('src');
+      filenameEl.value = '';
+      resetInfo();
+      setStatus('');
+    };
+    $('sampleBtn').onclick = () => {
+      b64El.value = samplePng; // 纯 Base64（无 data: 前缀）
+      mimeEl.value = 'image/png';
+      filenameEl.value = 'sample.png';
+      preview();
+    };
+    $('downloadBtn').onclick = download;
+    $('copyDataUrlBtn').onclick = copyDataUrl;
+
+    // 贴上/输入后 500ms 自动预览（简易 debounce）
+    let timer;
+    b64El.addEventListener('input', () => {
+      clearTimeout(timer);
+      timer = setTimeout(preview, 500);
+    });
+  </script>
+</body>
+</html>
