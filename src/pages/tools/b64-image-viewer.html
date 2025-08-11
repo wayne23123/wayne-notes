@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Base64 图片预览器</title>
+  <title>Base64 圖片預覽器</title>
   <style>
     *{box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Heiti TC","Microsoft JhengHei",sans-serif;margin:0;padding:24px;background:#0b111b;color:#e2e8f0}
@@ -29,23 +29,23 @@
 </head>
 <body>
   <div class="card">
-    <h1>Base64 图片预览器 <span class="pill">贴上 Base64 → 预览/下载</span></h1>
+    <h1>Base64 圖片預覽器 <span class="pill">貼上 Base64 → 預覽/下載</span></h1>
 
     <div class="row">
       <div class="two">
         <div>
-          <label for="b64">Base64 内容（可含或不含 <code>data:</code> 前缀）</label>
-          <textarea id="b64" placeholder="例如：data:image/png;base64,iVBORw0KGgo... 或纯 Base64"></textarea>
+          <label for="b64">Base64 內容（可含或不含 <code>data:</code> 前綴）</label>
+          <textarea id="b64" placeholder="例如：data:image/png;base64,iVBORw0KGgo... 或純 Base64"></textarea>
           <div class="btns">
-            <button id="previewBtn">预览</button>
+            <button id="previewBtn">預覽</button>
             <button id="clearBtn">清空</button>
-            <button id="sampleBtn">载入范例</button>
+            <button id="sampleBtn">載入範例</button>
           </div>
-          <div class="muted">若没有 <code>data:</code> 前缀，会以你右侧选的 MIME 类型自动补上。</div>
+          <div class="muted">若沒有 <code>data:</code> 前綴，會以你右側選的 MIME 類型自動補上。</div>
         </div>
 
         <div>
-          <label for="mime">MIME 类型</label>
+          <label for="mime">MIME 類型</label>
           <select id="mime">
             <option value="image/png">image/png（.png）</option>
             <option value="image/jpeg">image/jpeg（.jpg）</option>
@@ -54,24 +54,24 @@
             <option value="image/svg+xml">image/svg+xml（.svg）</option>
           </select>
 
-          <label for="filename" style="margin-top:10px">档名（下载用，可留空）</label>
+          <label for="filename" style="margin-top:10px">檔名（下載用，可留空）</label>
           <input id="filename" type="text" placeholder="例如：image.png" />
           <div class="btns" style="margin-top:8px">
-            <button id="downloadBtn">下载图片</button>
-            <button id="copyDataUrlBtn">复制 Data URL</button>
+            <button id="downloadBtn">下載圖片</button>
+            <button id="copyDataUrlBtn">複製 Data URL</button>
           </div>
           <div id="status" class="muted"></div>
         </div>
       </div>
 
       <div>
-        <label>预览</label>
+        <label>預覽</label>
         <div class="preview">
-          <img id="img" alt="预览区" />
+          <img id="img" alt="預覽區" />
         </div>
         <div class="info">
-          <span id="infoType">类型：—</span>
-          <span id="infoSize">大小：约 —</span>
+          <span id="infoType">類型：—</span>
+          <span id="infoSize">大小：約 —</span>
           <span id="infoDim">尺寸：—</span>
         </div>
       </div>
@@ -89,7 +89,7 @@
     const infoDimEl = $('infoDim');
     const filenameEl = $('filename');
 
-    // 建立 Data URL：若输入已有 data: 前缀则直接用，否则补上
+    // 建立 Data URL：若輸入已有 data: 前綴則直接用，否則補上
     function buildDataUrl(input, fallbackMime) {
       const raw = (input || '').trim();
       if (!raw) return '';
@@ -99,9 +99,9 @@
 
     // 估算 Base64 原始大小（bytes）
     function estimateBytesFromBase64(b64) {
-      const raw = b64.split(',').pop() || ''; // 去掉 data: 前缀
+      const raw = b64.split(',').pop() || ''; // 去掉 data: 前綴
       const len = raw.length;
-      // Base64 长度 → bytes 估算
+      // Base64 長度 → bytes 估算
       const padding = (raw.endsWith('==') ? 2 : raw.endsWith('=') ? 1 : 0);
       return Math.floor(len * 3 / 4) - padding;
     }
@@ -126,8 +126,8 @@
     }
 
     function resetInfo() {
-      infoTypeEl.textContent = '类型：—';
-      infoSizeEl.textContent = '大小：约 —';
+      infoTypeEl.textContent = '類型：—';
+      infoSizeEl.textContent = '大小：約 —';
       infoDimEl.textContent = '尺寸：—';
     }
 
@@ -135,37 +135,37 @@
       statusEl.innerHTML = ok ? `<span class="ok">${msg}</span>` : `<span class="error">${msg}</span>`;
     }
 
-    // 预览流程
+    // 預覽流程
     function preview() {
       resetInfo();
       setStatus('', true);
       const dataUrl = buildDataUrl(b64El.value, mimeEl.value);
       if (!dataUrl) {
         imgEl.removeAttribute('src');
-        setStatus('请贴上 Base64 内容');
+        setStatus('請貼上 Base64 內容');
         return;
       }
-      // 尝试读 MIME
+      // 嘗試讀 MIME
       const match = /^data:([^;]+);base64,/i.exec(dataUrl);
       const mime = match ? match[1] : mimeEl.value;
-      infoTypeEl.textContent = `类型：${mime}`;
-      infoSizeEl.textContent = `大小：约 ${humanSize(estimateBytesFromBase64(dataUrl))}`;
+      infoTypeEl.textContent = `類型：${mime}`;
+      infoSizeEl.textContent = `大小：約 ${humanSize(estimateBytesFromBase64(dataUrl))}`;
 
       imgEl.onload = () => {
         infoDimEl.textContent = `尺寸：${imgEl.naturalWidth} × ${imgEl.naturalHeight}`;
-        setStatus('载入成功', true);
+        setStatus('載入成功', true);
       };
       imgEl.onerror = () => {
         resetInfo();
-        setStatus('载入失败：请确认 Base64 与 MIME 类型是否正确');
+        setStatus('載入失敗：請確認 Base64 與 MIME 類型是否正確');
       };
       imgEl.src = dataUrl;
     }
 
-    // 下载图片
+    // 下載圖片
     function download() {
       const dataUrl = buildDataUrl(b64El.value, mimeEl.value);
-      if (!dataUrl) return setStatus('没有可下载的内容');
+      if (!dataUrl) return setStatus('沒有可下載的內容');
       const mime = /^data:([^;]+);base64,/i.exec(dataUrl)?.[1] || mimeEl.value;
       const a = document.createElement('a');
       const defaultName = `image.${extFromMime(mime)}`;
@@ -174,27 +174,27 @@
       document.body.appendChild(a);
       a.click();
       a.remove();
-      setStatus('已触发下载', true);
+      setStatus('已觸發下載', true);
     }
 
-    // 复制 Data URL
+    // 複製 Data URL
     async function copyDataUrl() {
       const dataUrl = buildDataUrl(b64El.value, mimeEl.value);
-      if (!dataUrl) return setStatus('没有可复制的内容');
+      if (!dataUrl) return setStatus('沒有可複製的內容');
       try {
         await navigator.clipboard.writeText(dataUrl);
-        setStatus('已复制 Data URL 到剪贴簿', true);
+        setStatus('已複製 Data URL 到剪貼簿', true);
       } catch {
-        setStatus('复制失败：浏览器权限不允许');
+        setStatus('複製失敗：瀏覽器權限不允許');
       }
     }
 
-    // 范例（1×1 PNG 黑点）
+    // 範例（1×1 PNG 黑點）
     const samplePng =
       'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAA' +
       'AAC0lEQVR42mP8/x8AAwMCAO1lMcoAAAAASUVORK5CYII=';
 
-    // 绑定事件
+    // 綁定事件
     $('previewBtn').onclick = preview;
     $('clearBtn').onclick = () => {
       b64El.value = '';
@@ -204,7 +204,7 @@
       setStatus('');
     };
     $('sampleBtn').onclick = () => {
-      b64El.value = samplePng; // 纯 Base64（无 data: 前缀）
+      b64El.value = samplePng; // 純 Base64（無 data: 前綴）
       mimeEl.value = 'image/png';
       filenameEl.value = 'sample.png';
       preview();
@@ -212,7 +212,7 @@
     $('downloadBtn').onclick = download;
     $('copyDataUrlBtn').onclick = copyDataUrl;
 
-    // 贴上/输入后 500ms 自动预览（简易 debounce）
+    // 貼上/輸入後 500ms 自動預覽（簡易 debounce）
     let timer;
     b64El.addEventListener('input', () => {
       clearTimeout(timer);
