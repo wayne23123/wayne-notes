@@ -478,6 +478,16 @@ function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
         >
           Commonly-Used-SVG
         </Link>
+        <Link
+          to="/tools/base64-preview"
+          className={`block p-2 text-sm rounded transition-all duration-300 ${
+            darkMode
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
+          }`}
+        >
+          Base64-Preview
+        </Link>
       </nav>
     </>
   );

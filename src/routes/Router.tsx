@@ -14,6 +14,7 @@ import StockDataCovert from '../pages/Tools/StockDataCovert';
 import Base64ToSvg from '../pages/Tools/Base64ToSvg';
 import WordCount from '../pages/Tools/WordCount';
 import CommonlyUsedSVG from '../pages/Tools/CommonlyUsedSVG';
+import Base64Preview from '../pages/Tools/Base64Preview';
 
 const AppRoutes = () => {
   return (
@@ -40,6 +41,7 @@ const AppRoutes = () => {
           <Route path="tools/base64-svg" element={<Base64ToSvg />} />
           <Route path="tools/word-count" element={<WordCount />} />
           <Route path="tools/commonly-used-svg" element={<CommonlyUsedSVG />} />
+          <Route path="tools/base64-preview" element={<Base64Preview />} />
         </Route>
       </Routes>
     </Router>
