@@ -12,7 +12,7 @@ export default function SvgPreviewTool() {
   const [svgCode, setSvgCode] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = (text) => {
+  const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);

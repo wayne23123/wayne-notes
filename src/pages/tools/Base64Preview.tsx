@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDarkMode } from '../../context/DarkModeContext';
 
 type MimeType =
@@ -73,7 +73,10 @@ export default function SvgPreviewTool() {
     return m || mime;
   }, [dataUrl, mime]);
 
-  const approxBytes = useMemo(() => estimateBytesFromBase64(dataUrl || b64), [dataUrl, b64]);
+  const approxBytes = useMemo(
+    () => estimateBytesFromBase64(dataUrl || b64),
+    [dataUrl, b64]
+  );
 
   // 預覽
   const preview = () => {
@@ -183,7 +186,9 @@ export default function SvgPreviewTool() {
         Base64 圖片預覽器{' '}
         <span
           className={`ml-2 rounded-full border px-2 py-0.5 text-xs ${
-            darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-100'
+            darkMode
+              ? 'border-gray-700 bg-gray-800'
+              : 'border-gray-200 bg-gray-100'
           }`}
         >
           貼上 Base64 → 預覽 / 下載
@@ -194,13 +199,18 @@ export default function SvgPreviewTool() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* 左側：輸入與操作 */}
           <div>
-            <label htmlFor="b64" className="text-sm text-gray-500 dark:text-gray-400">
+            <label
+              htmlFor="b64"
+              className="text-sm text-gray-500 dark:text-gray-400"
+            >
               Base64 內容（可含或不含 <code>data:</code> 前綴）
             </label>
             <textarea
               id="b64"
               className={`mt-1 w-full min-h-[140px] resize-y rounded-lg border p-3 outline-none ${
-                darkMode ? 'border-gray-700 bg-gray-800 text-white' : 'border-gray-200 bg-white text-black'
+                darkMode
+                  ? 'border-gray-700 bg-gray-800 text-white'
+                  : 'border-gray-200 bg-white text-black'
               }`}
               placeholder="例如：data:image/png;base64,iVBORw0KGgo... 或純 Base64"
               value={b64}
@@ -236,13 +246,18 @@ export default function SvgPreviewTool() {
 
           {/* 右側：MIME / 下載 / 複製 */}
           <div>
-            <label htmlFor="mime" className="text-sm text-gray-500 dark:text-gray-400">
+            <label
+              htmlFor="mime"
+              className="text-sm text-gray-500 dark:text-gray-400"
+            >
               MIME 類型
             </label>
             <select
               id="mime"
               className={`mt-1 w-full rounded-lg border p-2 ${
-                darkMode ? 'border-gray-700 bg-gray-800 text-white' : 'border-gray-200 bg-white text-black'
+                darkMode
+                  ? 'border-gray-700 bg-gray-800 text-white'
+                  : 'border-gray-200 bg-white text-black'
               }`}
               value={mime}
               onChange={(e) => setMime(e.target.value as MimeType)}
@@ -254,14 +269,19 @@ export default function SvgPreviewTool() {
               <option value="image/svg+xml">image/svg+xml（.svg）</option>
             </select>
 
-            <label htmlFor="filename" className="mt-3 block text-sm text-gray-500 dark:text-gray-400">
+            <label
+              htmlFor="filename"
+              className="mt-3 block text-sm text-gray-500 dark:text-gray-400"
+            >
               檔名（下載用，可留空）
             </label>
             <input
               id="filename"
               type="text"
               className={`mt-1 w-full rounded-lg border p-2 outline-none ${
-                darkMode ? 'border-gray-700 bg-gray-800 text-white' : 'border-gray-200 bg-white text-black'
+                darkMode
+                  ? 'border-gray-700 bg-gray-800 text-white'
+                  : 'border-gray-200 bg-white text-black'
               }`}
               placeholder={`例如：image.${EXT_MAP[mime]}`}
               value={filename}
@@ -287,7 +307,9 @@ export default function SvgPreviewTool() {
 
             <div
               className={`mt-2 text-xs ${
-                status.includes('失敗') ? 'text-red-400' : 'text-gray-500 dark:text-gray-400'
+                status.includes('失敗')
+                  ? 'text-red-400'
+                  : 'text-gray-500 dark:text-gray-400'
               }`}
               aria-live="polite"
             >
@@ -298,10 +320,14 @@ export default function SvgPreviewTool() {
 
         {/* 預覽區 */}
         <div>
-          <label className="text-sm text-gray-500 dark:text-gray-400">預覽</label>
+          <label className="text-sm text-gray-500 dark:text-gray-400">
+            預覽
+          </label>
           <div
             className={`mt-1 flex min-h-[260px] items-center justify-center rounded-xl border ${
-              darkMode ? 'border-gray-700 bg-gray-800/60' : 'border-gray-200 bg-gray-50'
+              darkMode
+                ? 'border-gray-700 bg-gray-800/60'
+                : 'border-gray-200 bg-gray-50'
             } p-3`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -316,9 +342,7 @@ export default function SvgPreviewTool() {
           <div className="mt-2 flex flex-wrap gap-4 text-xs text-gray-500 dark:text-gray-400">
             <span>類型：{effectiveMime || '—'}</span>
             <span>大小：約 {humanSize(approxBytes)}</span>
-            <span>
-              尺寸：{dim.w && dim.h ? `${dim.w} × ${dim.h}` : '—'}
-            </span>
+            <span>尺寸：{dim.w && dim.h ? `${dim.w} × ${dim.h}` : '—'}</span>
           </div>
         </div>
       </div>
