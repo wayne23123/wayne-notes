@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JavaScript Equality Table（== / === / Object.is）</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --card: #121933;
+        --border: #243057;
+        --ink: #e9ecf1;
+        --muted: #9fb2d6;
+        --accent: #bcd2ff;
+        --true: #7cffc1;
+        --false: #ff8a8a;
+        --cell: #0e1530;
+        --cell2: #0f1833;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans TC',
+          Arial, sans-serif;
+      }
+      .wrap {
+        max-width: 1200px;
+        margin: 28px auto;
+        padding: 0 16px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0 0 12px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+      }
+      .controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+      .btn {
+        background: #2a3a77;
+        border: 1px solid #3a4aa0;
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .btn[aria-pressed='true'] {
+        background: #3b56c2;
+      }
+      .legend {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 8px;
+      }
+      .scroller {
+        overflow: auto;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+      }
+      table {
+        border-collapse: separate;
+        border-spacing: 0;
+        min-width: 900px;
+      }
+      th,
+      td {
+        white-space: nowrap;
+        border-right: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        padding: 8px 10px;
+        font-size: 13px;
+        text-align: center;
+      }
+      thead th {
+        position: sticky;
+        top: 0;
+        background: var(--card);
+        z-index: 2;
+      }
+      tbody th {
+        position: sticky;
+        left: 0;
+        background: var(--card);
+        text-align: right;
+        z-index: 1;
+      }
+      thead th:first-child {
+        left: 0;
+        z-index: 3;
+      }
+      td {
+        background: var(--cell);
+      }
+      tr:nth-child(even) td {
+        background: var(--cell2);
+      }
+      .true {
+        background: rgba(124, 255, 193, 0.18);
+        color: var(--true);
+        font-weight: 700;
+      }
+      .false {
+        background: rgba(255, 138, 138, 0.18);
+        color: var(--false);
+        font-weight: 700;
+      }
+      code {
+        background: #0e1530;
+        color: #d3e2ff;
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+      .type {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 2px;
+      }
+      .tip {
+        color: var(--muted);
+        font-size: 12px;
+        margin: 10px 0 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>JavaScript Equality Table（== / === / Object.is）</h1>
+
+      <div class="card">
+        <div class="controls">
+          <span>運算子：</span>
+          <button class="btn" data-op="==" aria-pressed="true">==</button>
+          <button class="btn" data-op="===" aria-pressed="false">===</button>
+          <button class="btn" data-op="Object.is" aria-pressed="false">
+            Object.is
+          </button>
+          <span class="legend"
+            >綠＝true、紅＝false。滑鼠移到表頭可見 <code>typeof</code> 與 Object
+            tag。</span
+          >
+        </div>
+
+        <div class="scroller">
+          <table id="eqTable">
+            <thead>
+              <tr id="thead-row">
+                <!-- 動態產生 -->
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <!-- 動態產生 -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tip">
+          值清單：<code>true</code>、<code>false</code>、<code>1</code>、<code>0</code>、<code>-1</code>、
+          <code>"1"</code
+          >、<code>"0"</code>、<code>"-1"</code>、<code>""</code>、<code>null</code>、<code>undefined</code>、
+          <code>[]</code
+          >、<code>{}</code>、<code>[[]]</code>、<code>[0]</code>、<code>[1]</code>、<code>NaN</code>。
+          物件與陣列比較採**參考相等**；只有同一個實例（同一列同一欄）會嚴格相等，寬鬆相等在物件之間也不會做值相等。
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        // 1) 建立測試資料（顯示字串 + 實際值）
+        //    注意：[]、{}、[[]]、[0]、[1] 都是單一實例，用於參考相等測試
+        var specimens = [
+          { label: 'true', value: true },
+          { label: 'false', value: false },
+          { label: '1', value: 1 },
+          { label: '0', value: 0 },
+          { label: '-1', value: -1 },
+          { label: '"1"', value: '1' },
+          { label: '"0"', value: '0' },
+          { label: '"-1"', value: '-1' },
+          { label: '""', value: '' },
+          { label: 'null', value: null },
+          { label: 'undefined', value: undefined },
+          { label: '[]', value: [] },
+          { label: '{}', value: {} },
+          { label: '[[]]', value: [[]] },
+          { label: '[0]', value: [0] },
+          { label: '[1]', value: [1] },
+          { label: 'NaN', value: NaN },
+        ];
+
+        // 2) 工具：顯示 typeof 與 Object tag
+        function typeOf(v) {
+          return typeof v;
+        }
+        function tagOf(v) {
+          return Object.prototype.toString.call(v);
+        }
+
+        // 3) 測試函式：依目前運算子比較
+        var currentOp = '==';
+        function cmp(a, b) {
+          try {
+            if (currentOp === '==') {
+              return a == b;
+            }
+            if (currentOp === '===') {
+              return a === b;
+            }
+            if (currentOp === 'Object.is') {
+              return Object.is(a, b);
+            }
+          } catch (e) {
+            return false;
+          }
+        }
+
+        // 4) 建表頭
+        var theadRow = document.getElementById('thead-row');
+        function buildThead() {
+          // 左上角空白 + 運算子顯示
+          while (theadRow.firstChild) theadRow.removeChild(theadRow.firstChild);
+          var th0 = document.createElement('th');
+          th0.innerHTML =
+            'x ' + '<span class="type">（' + currentOp + ' y）</span>';
+          theadRow.appendChild(th0);
+
+          for (var i = 0; i < specimens.length; i++) {
+            var th = document.createElement('th');
+            th.innerHTML =
+              '<code>' +
+              specimens[i].label +
+              '</code>' +
+              '<span class="type">typeof: ' +
+              typeOf(specimens[i].value) +
+              '<br>' +
+              tagOf(specimens[i].value) +
+              '</span>';
+            theadRow.appendChild(th);
+          }
+        }
+
+        // 5) 建內容
+        var tbody = document.getElementById('tbody');
+        function buildBody() {
+          while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+
+          for (var r = 0; r < specimens.length; r++) {
+            var tr = document.createElement('tr');
+
+            // 列頭（row label）
+            var th = document.createElement('th');
+            th.innerHTML =
+              '<code>' +
+              specimens[r].label +
+              '</code>' +
+              '<span class="type">typeof: ' +
+              typeOf(specimens[r].value) +
+              '<br>' +
+              tagOf(specimens[r].value) +
+              '</span>';
+            tr.appendChild(th);
+
+            // 每個 cell
+            for (var c = 0; c < specimens.length; c++) {
+              var td = document.createElement('td');
+              var isTrue = cmp(specimens[r].value, specimens[c].value);
+              td.className = isTrue ? 'true' : 'false';
+              td.textContent = isTrue ? 'true' : 'false';
+              tr.appendChild(td);
+            }
+
+            tbody.appendChild(tr);
+          }
+        }
+
+        // 6) 綁定運算子切換
+        var opButtons = document.querySelectorAll('.btn[data-op]');
+        function setOp(op) {
+          currentOp = op;
+          for (var i = 0; i < opButtons.length; i++) {
+            opButtons[i].setAttribute(
+              'aria-pressed',
+              opButtons[i].getAttribute('data-op') === op ? 'true' : 'false'
+            );
+          }
+          buildThead();
+          buildBody();
+        }
+        for (var i = 0; i < opButtons.length; i++) {
+          (function (btn) {
+            btn.addEventListener('click', function () {
+              setOp(btn.getAttribute('data-op'));
+            });
+          })(opButtons[i]);
+        }
+
+        // 初始渲染
+        buildThead();
+        buildBody();
+      })();
+    </script>
+  </body>
+</html>
