@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <title>if() 即時判斷器｜貼上程式碼馬上看 truthy/falsy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --bg: #0b1020;
+        --card: #121933;
+        --border: #243057;
+        --ink: #e9ecf1;
+        --muted: #9fb2d6;
+        --accent: #bcd2ff;
+        --true: #7cffc1;
+        --false: #ff8a8a;
+        --cell: #0e1530;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans TC',
+          Arial, sans-serif;
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 28px auto;
+        padding: 0 16px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0 0 12px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 16px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+      }
+      .card h2 {
+        font-size: 16px;
+        margin: 0 0 10px;
+        color: var(--accent);
+      }
+      textarea {
+        width: 100%;
+        min-height: 260px;
+        resize: vertical;
+        box-sizing: border-box;
+        background: var(--cell);
+        color: var(--ink);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+      .pill {
+        border: 1px solid var(--border);
+        padding: 4px 8px;
+        border-radius: 999px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .pill:hover {
+        background: #1a244d;
+      }
+      button {
+        background: #2a3a77;
+        color: #fff;
+        border: 1px solid #3a4aa0;
+        border-radius: 8px;
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #334490;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .big {
+        font-size: 28px;
+        font-weight: 800;
+        margin: 12px 0 6px;
+      }
+      .truthy {
+        color: var(--true);
+      }
+      .falsy {
+        color: var(--false);
+      }
+      code,
+      pre {
+        background: var(--cell);
+        color: #d3e2ff;
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+      pre {
+        margin: 8px 0;
+        white-space: pre-wrap;
+      }
+      .kv {
+        margin-top: 6px;
+        line-height: 1.8;
+      }
+      .footer {
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>if() 即時判斷器｜貼上程式碼就知道 truthy / falsy</h1>
+
+      <div class="grid">
+        <!-- 左：輸入區 -->
+        <div class="card">
+          <h2>輸入（或貼上）你的程式碼</h2>
+          <div class="muted" style="margin-bottom: 6px">
+            建議格式：先宣告一個變數，再寫一個 <code>if (條件) {}</code>。<br />
+            若找不到 <code>if (...)</code>，會把整段視為一個「表達式」來判斷。
+          </div>
+          <textarea id="codeInput" spellcheck="false">
+let test = '';
+if (test) {
+  // do something
+}</textarea
+          >
+          <div class="row">
+            <button id="btnRun">立即解析 (Ctrl/⌘ + Enter)</button>
+            <span class="muted">或快速帶入：</span>
+            <span class="pill" data-snippet="let test = [];\nif (test) {}\n"
+              >if([])</span
+            >
+            <span class="pill" data-snippet="let test = '';\nif (test) {}\n"
+              >if('')</span
+            >
+            <span class="pill" data-snippet="let n = 0;\nif (n) {}\n"
+              >if(0)</span
+            >
+            <span class="pill" data-snippet="let x = '0';\nif (x) {}\n"
+              >if('0')</span
+            >
+            <span class="pill" data-snippet="let obj = {};\nif (obj) {}\n"
+              >if({})</span
+            >
+            <span class="pill" data-snippet="let v = NaN;\nif (v) {}\n"
+              >if(NaN)</span
+            >
+          </div>
+          <div class="footer">
+            注意：本頁會在你的瀏覽器本機使用
+            <code>Function</code> 執行你輸入的程式；請勿貼上不信任的程式碼。
+            為避免幹擾，這裡每次只回傳條件的值（若沒有
+            if，則回傳整段表達式的值）。
+          </div>
+        </div>
+
+        <!-- 右：結果區 -->
+        <div class="card">
+          <h2>結果</h2>
+          <div id="truthBadge" class="big falsy">待解析…</div>
+          <div id="condBlock">
+            <div class="muted">偵測到的條件：</div>
+            <pre id="condText">(尚未偵測)</pre>
+          </div>
+          <div class="kv">
+            <div>值（可讀）：<code id="valPretty">-</code></div>
+            <div>
+              typeof：<code id="valType">-</code>　Object tag：<code id="valTag"
+                >-</code
+              >
+            </div>
+          </div>
+          <div class="footer">
+            速查：<code>''</code>、<code>0</code>、<code>-0</code>、<code>0n</code>、<code>false</code>、<code>null</code>、<code>undefined</code>、<code
+              >NaN</code
+            >
+            是 <span class="falsy">falsy</span>；<br />
+            其他像 <code>[]</code>、<code>{}</code>、<code>'0'</code>、<code
+              >' '</code
+            >、<code>1</code> 為 <span class="truthy">truthy</span>。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        // ===== 取得元素 =====
+        const textarea = document.getElementById('codeInput');
+        const btnRun = document.getElementById('btnRun');
+        const truthBadge = document.getElementById('truthBadge');
+        const condText = document.getElementById('condText');
+        const valPretty = document.getElementById('valPretty');
+        const valType = document.getElementById('valType');
+        const valTag = document.getElementById('valTag');
+        const pills = document.querySelectorAll('.pill[data-snippet]');
+
+        // ===== 小工具：把值轉為可讀字串 =====
+        function valueToReadable(value) {
+          try {
+            if (typeof value === 'string') {
+              return '"' + value.replace(/"/g, '\\"') + '"';
+            }
+            if (typeof value === 'function') return '[Function]';
+            if (typeof value === 'symbol') return value.toString();
+            if (value === undefined) return 'undefined';
+            if (value === null) return 'null';
+            if (typeof value === 'bigint') return value.toString() + 'n';
+            if (typeof value === 'number' && Number.isNaN(value)) return 'NaN';
+            if (typeof value === 'object') {
+              try {
+                return JSON.stringify(value);
+              } catch (e) {
+                return Object.prototype.toString.call(value);
+              }
+            }
+            return String(value);
+          } catch (e) {
+            return String(value);
+          }
+        }
+
+        // ===== 擷取 if 條件：找第一個 if (...)；若無，整段視為表達式 =====
+        function extractIfCondition(code) {
+          const regex = /([\s\S]*?)\bif\s*\(([^)]*)\)/m;
+          const match = code.match(regex);
+          if (match) {
+            return { setup: match[1], condition: match[2] };
+          }
+          return { setup: '', condition: code };
+        }
+
+        // ===== 執行：回傳條件的值（非進入 if 的執行結果）=====
+        function evaluateCondition(setupCode, conditionCode) {
+          const src =
+            '"use strict";\n' +
+            setupCode +
+            '\n;return ( ' +
+            conditionCode +
+            ' );';
+          try {
+            const fn = new Function(src);
+            const value = fn();
+            return { ok: true, value: value, error: null };
+          } catch (err) {
+            return { ok: false, value: undefined, error: err };
+          }
+        }
+
+        // ===== 更新 UI =====
+        function renderResult(conditionCode, result) {
+          condText.textContent =
+            conditionCode && conditionCode.trim()
+              ? conditionCode
+              : '(無，整段視為表達式)';
+
+          if (!result.ok) {
+            truthBadge.textContent = '執行錯誤';
+            truthBadge.className = 'big falsy';
+            valPretty.textContent =
+              result.error && result.error.message
+                ? result.error.message
+                : 'Error';
+            valType.textContent = '-';
+            valTag.textContent = '-';
+            return;
+          }
+
+          const v = result.value;
+          const truthy = Boolean(v);
+
+          truthBadge.textContent = truthy
+            ? 'truthy（會進入 if）'
+            : 'falsy（不會進入 if）';
+          truthBadge.className = truthy ? 'big truthy' : 'big falsy';
+
+          valPretty.textContent = valueToReadable(v);
+          valType.textContent = typeof v;
+          valTag.textContent = Object.prototype.toString.call(v);
+        }
+
+        // ===== 主流程：解析 + 評估 + 顯示 =====
+        function runOnce() {
+          const code = String(textarea.value || '');
+          const parts = extractIfCondition(code);
+          const result = evaluateCondition(parts.setup, parts.condition);
+          renderResult(parts.condition, result);
+        }
+
+        // ===== 事件：按鈕、快捷鍵、即時判斷（debounce 300ms）=====
+        btnRun.addEventListener('click', function () {
+          runOnce();
+        });
+
+        document.addEventListener('keydown', function (e) {
+          const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+          const combo =
+            (isMac && e.metaKey && e.key === 'Enter') ||
+            (!isMac && e.ctrlKey && e.key === 'Enter');
+          if (combo) {
+            e.preventDefault();
+            runOnce();
+          }
+        });
+
+        let typingTimerId = 0;
+        textarea.addEventListener('input', function () {
+          if (typingTimerId) {
+            clearTimeout(typingTimerId);
+          }
+          typingTimerId = setTimeout(function () {
+            runOnce();
+            typingTimerId = 0;
+          }, 300);
+        });
+
+        for (let i = 0; i < pills.length; i++) {
+          (function (el) {
+            el.addEventListener('click', function () {
+              const snippet = el.getAttribute('data-snippet') || '';
+              textarea.value = snippet;
+              runOnce();
+            });
+          })(pills[i]);
+        }
+
+        // 初始跑一次
+        runOnce();
+      })();
+    </script>
+  </body>
+</html>
