@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Todo List</title>
+    <style>
+      :root {
+        --bg: #0b1220;
+        --panel: #111827;
+        --muted: #6b7280;
+        --text: #e5e7eb;
+        --primary: #3b82f6;
+        --primary-2: #1e40af;
+        --danger: #ef4444;
+        --ok: #10b981;
+        --warn: #f59e0b;
+        --radius: 14px;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #f7fafc;
+          --panel: #ffffff;
+          --muted: #6b7280;
+          --text: #111827;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+          Helvetica, Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji';
+        background: linear-gradient(180deg, var(--bg), #030712 60%);
+        color: var(--text);
+        display: grid;
+        place-items: start center;
+        padding: 24px;
+      }
+      .app {
+        width: min(960px, 100%);
+        background: var(--panel);
+        border-radius: var(--radius);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35),
+          inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        padding: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: 0.3px;
+      }
+      .title .badge {
+        font-size: 12px;
+        color: #93c5fd;
+        border: 1px dashed #93c5fd66;
+        padding: 2px 8px;
+        border-radius: 999px;
+      }
+
+      .controls {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      button,
+      .btn {
+        background: #111827;
+        color: var(--text);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      button:hover {
+        filter: brightness(1.1);
+      }
+      .btn-primary {
+        background: var(--primary);
+        border-color: #3b82f699;
+      }
+      .btn-danger {
+        background: #111827;
+        color: #fecaca;
+        border-color: #fecaca55;
+      }
+      .btn-ghost {
+        background: transparent;
+        border-color: transparent;
+        color: var(--muted);
+      }
+
+      /* 新增列（大輸入框） */
+      .add-row {
+        display: grid;
+        grid-template-columns: 1fr 120px 140px 110px;
+        gap: 8px;
+        margin: 14px 0 18px;
+      }
+      .add-row input[type='text'] {
+        padding: 16px 14px;
+        font-size: 18px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #0f172a;
+        color: var(--text);
+        outline: none;
+      }
+      .add-row input[type='date'],
+      .add-row select {
+        padding: 12px 10px;
+        font-size: 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #0f172a;
+        color: var(--text);
+      }
+      .add-row button {
+        padding: 14px 10px;
+        font-size: 16px;
+      }
+
+      /* 篩選列 */
+      .filters {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 8px 0 14px;
+      }
+      .filters .seg {
+        background: #0f172a;
+        border-radius: 999px;
+        padding: 4px;
+        display: flex;
+        gap: 4px;
+      }
+      .filters .seg button {
+        padding: 6px 12px;
+        border-radius: 999px;
+        border-color: transparent;
+        background: transparent;
+        color: #cbd5e1;
+      }
+      .filters .seg button.active {
+        background: var(--primary);
+        color: white;
+      }
+      .filters input[type='search'] {
+        flex: 1;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #0f172a;
+        color: var(--text);
+      }
+
+      /* 清單 */
+      ul#todo-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 8px;
+      }
+      .todo {
+        display: grid;
+        grid-template-columns: 28px 28px 1fr auto;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: #0b1220;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .todo.drag-over {
+        outline: 2px dashed #60a5fa;
+        outline-offset: 2px;
+      }
+      .drag {
+        cursor: grab;
+        user-select: none;
+        font-size: 18px;
+        color: #9ca3af;
+      }
+      .drag:active {
+        cursor: grabbing;
+      }
+      .todo .text {
+        line-height: 1.35;
+        padding: 8px 10px;
+        border-radius: 8px;
+        transition: background 0.15s;
+      }
+      .todo.completed .text {
+        color: #9ca3af;
+        text-decoration: line-through;
+      }
+      .todo .meta {
+        font-size: 12px;
+        color: #9ca3af;
+      }
+      .todo .actions {
+        display: flex;
+        gap: 6px;
+      }
+      .icon-btn {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 6px 8px;
+        border-radius: 8px;
+        color: #cbd5e1;
+      }
+      .icon-btn:hover {
+        background: #111827;
+      }
+
+      .edit-wrap {
+        display: none;
+        grid-column: 3 / -1;
+      }
+      .todo.editing .view {
+        display: none;
+      }
+      .todo.editing .edit-wrap {
+        display: grid;
+        grid-template-columns: 1fr 110px 100px auto;
+        gap: 8px;
+      }
+      .edit-wrap input[type='text'] {
+        padding: 12px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #0f172a;
+        color: var(--text);
+      }
+      .edit-wrap input[type='date'],
+      .edit-wrap select {
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #0f172a;
+        color: var(--text);
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 16px;
+        color: #cbd5e1;
+        font-size: 14px;
+      }
+      .counter strong {
+        color: white;
+      }
+
+      /* 小螢幕調整 */
+      @media (max-width: 720px) {
+        .add-row {
+          grid-template-columns: 1fr;
+        }
+        .todo {
+          grid-template-columns: 28px 28px 1fr auto;
+        }
+        .todo.editing .edit-wrap {
+          grid-template-columns: 1fr;
+        }
+        .filters {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app" role="application" aria-label="Todo 應用程式">
+      <header>
+        <div class="title">Todo List</div>
+        <div class="controls">
+          <button id="btn-export" class="btn">匯出 JSON</button>
+          <button id="btn-import" class="btn">匯入 JSON</button>
+          <button id="btn-clear-completed" class="btn btn-danger">
+            清除已完成
+          </button>
+        </div>
+      </header>
+
+      <div class="add-row" aria-label="新增待辦">
+        <input
+          id="new-title"
+          type="text"
+          placeholder="輸入待辦事項，按 Enter 或點『新增』"
+          aria-label="待辦內容"
+          autocomplete="off"
+        />
+        <select id="new-priority" aria-label="優先級">
+          <option value="normal" selected>普通</option>
+          <option value="high">高</option>
+          <option value="low">低</option>
+        </select>
+        <input id="new-due" type="date" aria-label="到期日" />
+        <button id="btn-add" class="btn btn-primary">新增</button>
+      </div>
+
+      <!-- 篩選／搜尋列 -->
+      <div class="filters">
+        <div class="seg" role="tablist" aria-label="篩選">
+          <button data-filter="all" class="active" role="tab">全部</button>
+          <button data-filter="active" role="tab">未完成</button>
+          <button data-filter="completed" role="tab">已完成</button>
+        </div>
+        <input
+          id="search"
+          type="search"
+          placeholder="搜尋..."
+          aria-label="搜尋待辦"
+        />
+      </div>
+
+      <ul id="todo-list" aria-live="polite"></ul>
+
+      <div class="footer">
+        <div class="counter">
+          共 <strong id="count-all">0</strong> 筆，未完成
+          <strong id="count-active">0</strong> 筆
+        </div>
+        <div class="controls">
+          <button id="btn-toggle-all" class="btn">全部切換完成/未完成</button>
+          <button id="btn-reset" class="btn btn-ghost">重置範例資料</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ======= 狀態與儲存 =======
+      const LS_KEY = 'todo-items-v1';
+      let state = {
+        items: [],
+        filter: 'all',
+        search: '',
+      };
+
+      function uid() {
+        return (
+          crypto?.randomUUID?.() || 'id-' + Math.random().toString(36).slice(2)
+        );
+      }
+
+      function save() {
+        localStorage.setItem(LS_KEY, JSON.stringify(state.items));
+      }
+
+      function load() {
+        try {
+          const raw = localStorage.getItem(LS_KEY);
+          if (raw) state.items = JSON.parse(raw);
+        } catch {}
+      }
+
+      // ======= DOM 參考 =======
+      const listEl = document.getElementById('todo-list');
+      const filterButtons = document.querySelectorAll('.filters .seg button');
+      const searchEl = document.getElementById('search');
+
+      // 新增區
+      const titleEl = document.getElementById('new-title');
+      const prioEl = document.getElementById('new-priority');
+      const dueEl = document.getElementById('new-due');
+      const addBtn = document.getElementById('btn-add');
+
+      // 其他控制
+      const clearCompletedBtn = document.getElementById('btn-clear-completed');
+      const toggleAllBtn = document.getElementById('btn-toggle-all');
+      const exportBtn = document.getElementById('btn-export');
+      const importBtn = document.getElementById('btn-import');
+      const resetBtn = document.getElementById('btn-reset');
+
+      const countAllEl = document.getElementById('count-all');
+      const countActiveEl = document.getElementById('count-active');
+
+      // ======= 渲染 =======
+      function render() {
+        const { filter, search } = state;
+        const q = search.trim().toLowerCase();
+        let items = state.items.slice();
+        if (filter === 'active') items = items.filter((i) => !i.completed);
+        if (filter === 'completed') items = items.filter((i) => i.completed);
+        if (q) items = items.filter((i) => i.title.toLowerCase().includes(q));
+
+        listEl.innerHTML = '';
+        for (const item of items) {
+          listEl.appendChild(renderItem(item));
+        }
+
+        // 計數
+        countAllEl.textContent = String(state.items.length);
+        countActiveEl.textContent = String(
+          state.items.filter((i) => !i.completed).length
+        );
+
+        // 更新篩選按鈕樣式
+        filterButtons.forEach((b) =>
+          b.classList.toggle('active', b.dataset.filter === filter)
+        );
+      }
+
+      function renderItem(item) {
+        const li = document.createElement('li');
+        li.className = 'todo' + (item.completed ? ' completed' : '');
+        li.setAttribute('draggable', 'true');
+        li.dataset.id = item.id;
+
+        // 可視區
+        const view = document.createElement('div');
+        view.className = 'view';
+        view.style.display = 'contents'; // 讓子元素吃 grid
+
+        const drag = document.createElement('div');
+        drag.className = 'drag';
+        drag.textContent = '⋮⋮';
+        drag.title = '按住拖曳排序';
+        drag.setAttribute('aria-label', '拖曳排序');
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = !!item.completed;
+        checkbox.title = '切換完成';
+        checkbox.addEventListener('change', () => {
+          item.completed = checkbox.checked;
+          save();
+          render();
+        });
+
+        const text = document.createElement('div');
+        text.className = 'text';
+        text.textContent = item.title;
+
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.textContent = metaText(item);
+
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+        const editBtn = makeIconBtn('✏️', '編輯');
+        const delBtn = makeIconBtn('🗑️', '刪除');
+        const upBtn = makeIconBtn('⬆️', '上移（觸控備援）');
+        const downBtn = makeIconBtn('⬇️', '下移（觸控備援）');
+
+        editBtn.addEventListener('click', () => enterEdit(li, item));
+        delBtn.addEventListener('click', () => removeItem(item.id));
+        upBtn.addEventListener('click', () => moveByDelta(item.id, -1));
+        downBtn.addEventListener('click', () => moveByDelta(item.id, +1));
+
+        actions.append(editBtn, delBtn, upBtn, downBtn);
+
+        view.append(drag, checkbox, buildMain(text, meta), actions);
+
+        // 編輯區
+        const editWrap = document.createElement('div');
+        editWrap.className = 'edit-wrap';
+        const editTitle = document.createElement('input');
+        editTitle.type = 'text';
+        editTitle.value = item.title;
+        editTitle.placeholder = '編輯內容…';
+        const editPrio = document.createElement('select');
+        editPrio.innerHTML =
+          '<option value="normal">普通</option><option value="high">高</option><option value="low">低</option>';
+        editPrio.value = item.priority || 'normal';
+        const editDue = document.createElement('input');
+        editDue.type = 'date';
+        editDue.value = item.due || '';
+        const saveBtn = makeIconBtn('💾 儲存', '儲存');
+        const cancelBtn = makeIconBtn('✖️ 取消', '取消');
+        saveBtn.addEventListener('click', () => {
+          const title = editTitle.value.trim();
+          if (!title) return alert('內容不可為空');
+          item.title = title;
+          item.priority = editPrio.value;
+          item.due = editDue.value || null;
+          save();
+          exitEdit(li);
+          render();
+        });
+        cancelBtn.addEventListener('click', () => {
+          exitEdit(li);
+        });
+
+        editWrap.append(editTitle, editPrio, editDue, saveBtn, cancelBtn);
+
+        li.append(view, editWrap);
+
+        // 拖曳事件
+        li.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', item.id);
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        li.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          li.classList.add('drag-over');
+        });
+        li.addEventListener('dragleave', () =>
+          li.classList.remove('drag-over')
+        );
+        li.addEventListener('drop', (e) => {
+          e.preventDefault();
+          li.classList.remove('drag-over');
+          const fromId = e.dataTransfer.getData('text/plain');
+          const toId = item.id;
+          reorder(fromId, toId);
+        });
+
+        return li;
+      }
+
+      function buildMain(textEl, metaEl) {
+        const wrap = document.createElement('div');
+        wrap.style.display = 'grid';
+        wrap.style.gap = '4px';
+        wrap.append(textEl, metaEl);
+        return wrap;
+      }
+      function metaText(item) {
+        const parts = [];
+        if (item.priority === 'high') parts.push('⚡ 高優先');
+        if (item.priority === 'low') parts.push('⬇︎ 低優先');
+        if (item.due) parts.push('⏰ ' + item.due);
+        return parts.join(' · ');
+      }
+      function makeIconBtn(text, title) {
+        const b = document.createElement('button');
+        b.className = 'icon-btn';
+        b.textContent = text;
+        b.title = title;
+        return b;
+      }
+
+      // ======= CRUD =======
+      function addItem(title, priority = 'normal', due = null) {
+        state.items.push({
+          id: uid(),
+          title,
+          completed: false,
+          createdAt: Date.now(),
+          priority,
+          due,
+        });
+        save();
+        render();
+      }
+      function removeItem(id) {
+        const idx = state.items.findIndex((i) => i.id === id);
+        if (idx >= 0) {
+          state.items.splice(idx, 1);
+          save();
+          render();
+        }
+      }
+      function moveByDelta(id, delta) {
+        const idx = state.items.findIndex((i) => i.id === id);
+        if (idx < 0) return;
+        const nidx = Math.max(0, Math.min(state.items.length - 1, idx + delta));
+        if (nidx === idx) return;
+        const [it] = state.items.splice(idx, 1);
+        state.items.splice(nidx, 0, it);
+        save();
+        render();
+      }
+
+      // 編輯模式切換
+      function enterEdit(li) {
+        li.classList.add('editing');
+        li.querySelector('.edit-wrap input[type="text"]').focus();
+      }
+      function exitEdit(li) {
+        li.classList.remove('editing');
+      }
+
+      // 重新排序（拖曳）
+      function reorder(fromId, toId) {
+        if (!fromId || !toId || fromId === toId) return;
+        const fromIdx = state.items.findIndex((i) => i.id === fromId);
+        const toIdx = state.items.findIndex((i) => i.id === toId);
+        if (fromIdx < 0 || toIdx < 0) return;
+        const [moved] = state.items.splice(fromIdx, 1);
+        state.items.splice(toIdx, 0, moved);
+        save();
+        render();
+      }
+
+      // ======= 事件繫結 =======
+      addBtn.addEventListener('click', onAdd);
+      titleEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') onAdd();
+      });
+      function onAdd() {
+        const title = titleEl.value.trim();
+        if (!title) return titleEl.focus();
+        addItem(title, prioEl.value, dueEl.value || null);
+        titleEl.value = ''; // 清空輸入
+      }
+
+      filterButtons.forEach((btn) =>
+        btn.addEventListener('click', () => {
+          state.filter = btn.dataset.filter;
+          render();
+        })
+      );
+      searchEl.addEventListener('input', () => {
+        state.search = searchEl.value;
+        render();
+      });
+
+      clearCompletedBtn.addEventListener('click', () => {
+        state.items = state.items.filter((i) => !i.completed);
+        save();
+        render();
+      });
+      toggleAllBtn.addEventListener('click', () => {
+        const anyActive = state.items.some((i) => !i.completed);
+        state.items.forEach((i) => (i.completed = anyActive));
+        save();
+        render();
+      });
+
+      exportBtn.addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(state.items, null, 2)], {
+          type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'todos.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      importBtn.addEventListener('click', async () => {
+        const picker = document.createElement('input');
+        picker.type = 'file';
+        picker.accept = 'application/json';
+        picker.onchange = async () => {
+          const file = picker.files[0];
+          if (!file) return;
+          try {
+            const text = await file.text();
+            const arr = JSON.parse(text);
+            if (!Array.isArray(arr)) throw new Error('格式錯誤');
+            // 基本淨化
+            state.items = arr.map((x) => ({
+              id: x.id || uid(),
+              title: String(x.title || '').slice(0, 500),
+              completed: !!x.completed,
+              createdAt: Number(x.createdAt || Date.now()),
+              priority: ['high', 'normal', 'low'].includes(x.priority)
+                ? x.priority
+                : 'normal',
+              due: x.due || null,
+            }));
+            save();
+            render();
+          } catch (e) {
+            alert('匯入失敗：' + e.message);
+          }
+        };
+        picker.click();
+      });
+
+      resetBtn.addEventListener('click', () => {
+        if (!confirm('重置並載入範例資料？')) return;
+        state.items = [
+          {
+            id: uid(),
+            title: '學會 PHP: 做一個 /notes API',
+            completed: true,
+            createdAt: Date.now() - 86400000 * 2,
+            priority: 'high',
+            due: null,
+          },
+          {
+            id: uid(),
+            title: '把 Todo List 儲存到 localStorage',
+            completed: false,
+            createdAt: Date.now() - 86400000,
+            priority: 'normal',
+            due: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+          },
+          {
+            id: uid(),
+            title: '拖曳排序 + 編輯/刪除',
+            completed: false,
+            createdAt: Date.now(),
+            priority: 'low',
+            due: null,
+          },
+        ];
+        save();
+        render();
+      });
+
+      // ======= 初始化 =======
+      load();
+      if (state.items.length === 0) {
+        // 初始範例
+        state.items = [
+          {
+            id: uid(),
+            title: '點我 ✏️ 編輯，☑️ 勾選完成',
+            completed: false,
+            createdAt: Date.now(),
+            priority: 'normal',
+            due: null,
+          },
+        ];
+        save();
+      }
+      render();
+    </script>
+  </body>
+</html>
