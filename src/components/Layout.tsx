@@ -399,6 +399,66 @@ function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
       </h2>
       <nav className="space-y-2">
         <Link
+          to="/tools/todo-list"
+          className={`flex p-2 text-sm rounded transition-all duration-300 ${
+            darkMode
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
+          }`}
+        >
+          <div>Todo-List</div>
+          <div className="pl-1">
+            <svg
+              className="w-5 h-5 text-slate-700"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <rect x="3" y="4" width="18" height="16" rx="2" strokeWidth="2" />
+              <rect
+                x="6"
+                y="7.5"
+                width="3.5"
+                height="3.5"
+                rx="0.6"
+                strokeWidth="2"
+              />
+              <path
+                d="M6.8 9.3l1 1 2-2"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path d="M12 9h6" strokeWidth="2" strokeLinecap="round" />
+              <rect
+                x="6"
+                y="11.5"
+                width="3.5"
+                height="3.5"
+                rx="0.6"
+                strokeWidth="2"
+              />
+              <path
+                d="M6.8 13.3l1 1 2-2"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path d="M12 13h6" strokeWidth="2" strokeLinecap="round" />
+              <rect
+                x="6"
+                y="15.5"
+                width="3.5"
+                height="3.5"
+                rx="0.6"
+                strokeWidth="2"
+              />
+              <path d="M12 17h6" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </div>
+        </Link>
+        <Link
           to="/tools/json-formatter"
           className={`block p-2 text-sm rounded transition-all duration-300 ${
             darkMode
