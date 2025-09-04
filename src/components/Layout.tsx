@@ -459,6 +459,16 @@ function ToolsSidebar({ darkMode }: { darkMode: boolean }) {
           </div>
         </Link>
         <Link
+          to="/tools/calculator"
+          className={`block p-2 text-sm rounded transition-all duration-300 ${
+            darkMode
+              ? 'hover:bg-gray-700 text-gray-200'
+              : 'hover:bg-gray-200 text-gray-900'
+          }`}
+        >
+          Calculator
+        </Link>
+        <Link
           to="/tools/json-formatter"
           className={`block p-2 text-sm rounded transition-all duration-300 ${
             darkMode

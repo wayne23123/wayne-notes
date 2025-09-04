@@ -7,6 +7,7 @@ import GitBasics from '../pages/Notes/ToolsCommand/GitBasics';
 import JavaScriptJSON from '../pages/Notes/JavaScript/JSON';
 import Tools from '../pages/Tools';
 import TodoList from '../pages/Tools/TodoList';
+import Calculator from '../pages/Tools/Calculator';
 import JsonFormatter from '../pages/Tools/JsonFormatter';
 import CssFormatter from '../pages/Tools/CssFormatter';
 import ClampCalculator from '../pages/Tools/ClampCalculator';
@@ -32,6 +33,7 @@ const AppRoutes = () => {
           <Route path="notes/java-script/JSON" element={<JavaScriptJSON />} />
           <Route path="tools" element={<Tools />} />
           <Route path="tools/todo-list" element={<TodoList />} />
+          <Route path="tools/calculator" element={<Calculator />} />
           <Route path="tools/json-formatter" element={<JsonFormatter />} />
           <Route path="tools/css-formatter" element={<CssFormatter />} />
           <Route path="tools/clamp-calculator" element={<ClampCalculator />} />
